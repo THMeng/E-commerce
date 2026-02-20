@@ -302,7 +302,8 @@ public function CartItem()
     
 
     public function myOrder(){
-        $dbOrder = DB::table('order')->orderByDesc('id')->paginate(5);
+        $userId = Auth::user()->id;
+        $dbOrder = DB::table('order')->where('user_id', $userId)->orderByDesc('id')->paginate(5);
         return view('frontend.my-order',['myOrder'=>$dbOrder]);
     }
 
