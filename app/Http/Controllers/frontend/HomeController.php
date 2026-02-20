@@ -100,10 +100,45 @@ class HomeController extends Controller
         return view('frontend.news-detail');
     }
 
-    public function Search()
-    {
-        return view('frontend.search');
+    public function Search(Request $request)
+{
+    $keyword  = $request->get('s');
+    $products = collect();
+
+    if ($keyword) {
+        $products = DB::table('product')
+            ->where(function($q) use ($keyword) {
+                $q->where('name', 'LIKE', '%' . $keyword . '%')
+                  ->orWhere('description', 'LIKE', '%' . $keyword . '%');
+            })
+            ->get();
     }
+
+    return view('frontend.search', [
+        'products' => $products,
+        'keyword'  => $keyword,
+    ]);
+}
+
+public function SearchAjax(Request $request)
+{
+    $keyword = $request->get('s');
+
+    if (!$keyword || strlen($keyword) < 2) {
+        return response()->json([]);
+    }
+
+    $products = DB::table('product')
+        ->where(function($q) use ($keyword) {
+            $q->where('name', 'LIKE', '%' . $keyword . '%')
+              ->orWhere('description', 'LIKE', '%' . $keyword . '%');
+        })
+        ->select('name', 'slug', 'thumbnail', 'regular_price', 'sale_price')
+        ->limit(8)
+        ->get();
+
+    return response()->json($products);
+}
 
     public function notFound()
     {
@@ -243,23 +278,28 @@ class HomeController extends Controller
     ]);
 }
 
-    public function CartItem()
-    {
-        $userId = Auth::user()->id;
-        $cartId = DB::table('cart')->where('user_id', $userId)->get();
+public function CartItem()
+{
+    $userId = Auth::user()->id;
 
-        $cartId = $cartId[0]->id;
+    $cart = DB::table('cart')->where('user_id', $userId)->first();
 
-        $cartItems = DB::table('cart_items')
-            ->leftJoin('product', 'cart_items.product_id', '=', 'product.id')
-            ->leftJoin('cart', 'cart.id', 'cart_items.cart_id')
-            ->where('cart_items.cart_id', $cartId)
-            ->where('status', 0)
-            ->select('cart_items.*', 'product.name', 'product.thumbnail', 'cart.total_amount')
-            ->get();
-
-        return view('frontend.cart-item', ['cartItems' => $cartItems]);
+    if (!$cart) {
+        return view('frontend.cart-item', ['cartItems' => collect(), 'totalAmount' => 0]);
     }
+
+    $cartItems = DB::table('cart_items')
+        ->leftJoin('product', 'cart_items.product_id', '=', 'product.id')
+        ->where('cart_items.cart_id', $cart->id)
+        ->where('cart_items.status', 0)
+        ->select('cart_items.*', 'product.name', 'product.thumbnail')
+        ->get();
+
+    $totalAmount = $cart->total_amount ?? 0;
+
+    return view('frontend.cart-item', ['cartItems' => $cartItems, 'totalAmount' => $totalAmount]);
+}
+    
 
     public function myOrder(){
         $dbOrder = DB::table('order')->orderByDesc('id')->get();
@@ -277,39 +317,76 @@ class HomeController extends Controller
         return view('frontend.my-order-history',['orderItems'=>$dbOrderItems , 'order'=>$dbOrder]);        
     }
 
-    public function cancelOrder($id){
-        $dbOrder = DB::table('order')->where('id',$id)->update([
-            'status'        => 'cancel',
-            'updated_at'    => date('Y-m-d h:i:s')
-        ]);
+    public function cancelOrder($id)
+{
+    $dbOrder = DB::table('order')->where('id', $id)->update([
+        'status'     => 'cancel',
+        'updated_at' => date('Y-m-d H:i:s')  // ✅ fixed: H not h
+    ]);
 
-        $dbOrderItem = DB::table('order_item')->where('order_id',$id)->get();
+    if (!$dbOrder) {
+        return redirect('/my-order')->with('error', 'Order not found or already cancelled.');
+    }
 
-        foreach ($dbOrderItem as $orderItem) {
-            DB::table('product')->where('id', $orderItem->product_id)->increment('quantity', $orderItem->quantity);
-        }
+    $dbOrderItems = DB::table('order_item')->where('order_id', $id)->get();
 
-        if($dbOrder){
-            return redirect('/my-order');
+    foreach ($dbOrderItems as $orderItem) {
+        // ✅ Restore product stock
+        DB::table('product')
+            ->where('id', $orderItem->product_id)
+            ->increment('quantity', $orderItem->quantity);
+
+        // ✅ Reset cart_item status back to 0 (active) so it shows in cart again
+        DB::table('cart_items')
+            ->where('product_id', $orderItem->product_id)
+            ->where('status', 1)
+            ->update([
+                'status'     => 0,
+                'updated_at' => date('Y-m-d H:i:s')
+            ]);
+    }
+
+    // ✅ Recalculate cart total after restoring items
+    // Find the user's cart via the order
+    $order = DB::table('order')->where('id', $id)->first();
+    if ($order) {
+        $cart = DB::table('cart')->where('user_id', $order->user_id)->first();
+        if ($cart) {
+            $newTotal = DB::table('cart_items')
+                ->where('cart_id', $cart->id)
+                ->where('status', 0)
+                ->sum(DB::raw('price * quantity'));
+
+            DB::table('cart')->where('id', $cart->id)->update([
+                'total_amount' => $newTotal,
+                'updated_at'   => date('Y-m-d H:i:s')
+            ]);
         }
     }
 
+    return redirect('/my-order')->with('success', 'Order cancelled successfully.');
+}
 
     public function checkOut()
     {
         $userId = Auth::user()->id;
-        $cartId = DB::table('cart')->where('user_id', $userId)->get();
 
-        $cartId = $cartId[0]->id;
+        $cart = DB::table('cart')->where('user_id', $userId)->first();
+
+        if (!$cart) {
+            return view('frontend.check-out', ['cartItems' => collect(), 'totalAmount' => 0]);
+        }
 
         $cartItems = DB::table('cart_items')
             ->leftJoin('product', 'cart_items.product_id', '=', 'product.id')
-            ->leftJoin('cart', 'cart.id', 'cart_items.cart_id')
-            ->where('cart_items.cart_id', $cartId)
-            ->where('status', 0)
-            ->select('cart_items.*', 'product.name', 'product.thumbnail', 'cart.total_amount')
+            ->where('cart_items.cart_id', $cart->id)
+            ->where('cart_items.status', 0)
+            ->select('cart_items.*', 'product.name', 'product.thumbnail')
             ->get();
-        return view('frontend.check-out', ['cartItems' => $cartItems]);
+
+        $totalAmount = $cart->total_amount ?? 0;
+
+        return view('frontend.check-out', ['cartItems' => $cartItems, 'totalAmount' => $totalAmount]);
     }
 
     public function recipt()
@@ -321,44 +398,43 @@ class HomeController extends Controller
 
 
     public function RemoveCartItems($id)
-    {
-        // Fetch the cart item by its ID
-        $cartItem = DB::table('cart_items')->where('id', $id)->first();
-    
-        // Check if the cart item exists
-        if (!$cartItem) {
-            return redirect('/')->with('error', 'Cart item not found.');
-        }
-    
-        $cartId = $cartItem->cart_id;
-    
-        // Delete the cart item
-        $delete = DB::table('cart_items')->where('id', $id)->delete();
-    
-        if ($delete) {
-            // Recalculate the total amount for the cart
-            $totalAmount = DB::table('cart_items')
-                ->where('cart_id', $cartId)
-                ->sum(DB::raw('price * quantity'));
-    
-            // Update the cart with the new total amount
-            DB::table('cart')->where('id', $cartId)->update([
-                'total_amount' => $totalAmount,
-                'updated_at' => date('Y-m-d h:i:s')
-            ]);
-    
-            // Check if there are any remaining items in the cart
-            $checkCartId = DB::table('cart_items')->where('cart_id', $cartId)->count();
-    
-            if ($checkCartId > 0) {
-                return redirect('/cart-item')->with('success', 'Cart item removed successfully.');
-            } else {
-                return redirect('/')->with('message', 'All items have been removed from the cart.');
-            }
+{
+    $cartItem = DB::table('cart_items')->where('id', $id)->first();
+
+    if (!$cartItem) {
+        return redirect('/cart-item')->with('error', 'Cart item not found.');
+    }
+
+    $cartId = $cartItem->cart_id;
+
+    $delete = DB::table('cart_items')->where('id', $id)->delete();
+
+    if ($delete) {
+        // ✅ Only sum active (status=0) items — excludes already-ordered items
+        $totalAmount = DB::table('cart_items')
+            ->where('cart_id', $cartId)
+            ->where('status', 0)
+            ->sum(DB::raw('price * quantity'));
+
+        DB::table('cart')->where('id', $cartId)->update([
+            'total_amount' => $totalAmount,
+            'updated_at'   => date('Y-m-d H:i:s')  // ✅ fixed: H (24hr) not h (12hr)
+        ]);
+
+        $remainingItems = DB::table('cart_items')
+            ->where('cart_id', $cartId)
+            ->where('status', 0)
+            ->count();
+
+        if ($remainingItems > 0) {
+            return redirect('/cart-item')->with('success', 'Cart item removed successfully.');
         } else {
-            return redirect('/cart')->with('error', 'Failed to remove cart item.');
+            return redirect('/')->with('message', 'All items have been removed from the cart.');
         }
     }
+
+    return redirect('/cart-item')->with('error', 'Failed to remove cart item.');
+}
     
 
     public function logout($id)

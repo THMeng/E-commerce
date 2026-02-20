@@ -40,6 +40,7 @@ Route::get('/product/{slug}',      [HomeController::class, 'Product']);
 Route::get('/news',         [HomeController::class, 'News']);
 Route::get('/article',      [HomeController::class, 'Article']);
 Route::get('/search',       [HomeController::class, 'Search']);
+Route::get('/search-ajax', [HomeController::class, 'SearchAjax']);
 Route::get('/404',       [HomeController::class, 'notFound']);
 Route::get('/logout/{id}',[HomeController::class,'logout']);
 

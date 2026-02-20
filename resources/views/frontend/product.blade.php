@@ -3,109 +3,367 @@
     Product Detail
 @endsection
 @section('content')
-<main class="product-detail">
 
-    <section class="review">
+<style>
+    /* ── Page wrapper ── */
+    .product-detail-section {
+        padding: 2rem 0 3rem;
+        background: #f5f5f5;
+    }
+
+    /* ── Product image ── */
+    .product-image-wrap {
+        background: #fff;
+        border-radius: 6px;
+        overflow: hidden;
+        box-shadow: 0 1px 6px rgba(0,0,0,0.07);
+    }
+
+    .product-image-wrap img {
+        width: 100%;
+        height: 420px;
+        object-fit: cover;
+        display: block;
+    }
+
+    @media (max-width: 767px) {
+        .product-image-wrap img { height: 280px; }
+    }
+
+    @media (min-width: 768px) and (max-width: 991px) {
+        .product-image-wrap img { height: 340px; }
+    }
+
+    /* ── Product detail card ── */
+    .product-detail-card {
+        background: #fff;
+        border-radius: 6px;
+        box-shadow: 0 1px 6px rgba(0,0,0,0.07);
+        padding: 1.75rem;
+        height: 100%;
+    }
+
+    .product-detail-card .product-title {
+        font-size: 1.3rem;
+        font-weight: 800;
+        color: #222;
+        margin: 0.5rem 0 1rem;
+        line-height: 1.3;
+    }
+
+    @media (max-width: 575px) {
+        .product-detail-card .product-title { font-size: 1.1rem; }
+        .product-detail-card { padding: 1.25rem; }
+    }
+
+    /* ── Pricing ── */
+    .price-list {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        flex-wrap: wrap;
+        margin-bottom: 0.25rem;
+    }
+
+    .regular-price {
+        color: #aaa;
+        font-size: 0.95rem;
+    }
+
+    .sale-price {
+        color: #e74c3c;
+        font-weight: 700;
+        font-size: 1.2rem;
+    }
+
+    .price {
+        color: #222;
+        font-weight: 700;
+        font-size: 1.2rem;
+    }
+
+    /* ── Attribute groups ── */
+    .attr-group {
+        margin-top: 1.1rem;
+    }
+
+    .attr-group .attr-label {
+        font-size: 0.75rem;
+        font-weight: 700;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        color: #888;
+        margin-bottom: 6px;
+        display: block;
+    }
+
+    .attr-group .attr-value {
+        font-size: 0.92rem;
+        color: #333;
+        font-weight: 500;
+    }
+
+    /* ── Add to cart form ── */
+    .add-to-cart-form {
+        display: flex;
+        align-items: flex-start;
+        gap: 10px;
+        flex-wrap: wrap;
+        margin-top: 1.4rem;
+    }
+
+    .add-to-cart-form input[type="number"] {
+        width: 75px;
+        height: 44px;
+        font-size: 0.95rem;
+        text-align: center;
+        border: 1.5px solid #ddd;
+        border-radius: 4px;
+        padding: 0 8px;
+    }
+
+    .add-to-cart-form input[type="number"]:focus {
+        outline: none;
+        border-color: #222;
+    }
+
+    .btn-add-cart {
+        height: 44px;
+        padding: 0 1.5rem;
+        background: #222;
+        color: #fff;
+        font-weight: 700;
+        font-size: 0.85rem;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        transition: background 0.2s;
+        white-space: nowrap;
+    }
+
+    .btn-add-cart:hover {
+        background: #e74c3c;
+    }
+
+    @media (max-width: 400px) {
+        .add-to-cart-form input[type="number"] { width: 60px; }
+        .btn-add-cart { padding: 0 1rem; font-size: 0.8rem; }
+    }
+
+    /* ── Description ── */
+    .description-box {
+        margin-top: 1.25rem;
+        padding-top: 1.25rem;
+        border-top: 1px solid #f0f0f0;
+    }
+
+    .description-box .attr-label {
+        font-size: 0.75rem;
+        font-weight: 700;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        color: #888;
+        margin-bottom: 8px;
+        display: block;
+    }
+
+    .description-box p {
+        font-size: 0.9rem;
+        color: #555;
+        line-height: 1.7;
+        margin: 0;
+    }
+
+    /* ── Divider ── */
+    .section-divider {
+        margin: 2.5rem 0 1.5rem;
+    }
+
+    .section-divider h3 {
+        font-size: 1rem;
+        font-weight: 800;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+        border-bottom: 2px solid #222;
+        padding-bottom: 8px;
+        display: inline-block;
+        margin: 0;
+    }
+
+    /* ── Related products ── */
+    .related-section {
+        padding: 0 0 4rem;
+        background: #f5f5f5;
+    }
+
+    figure {
+        margin: 0;
+    }
+
+    figure .thumbnail {
+        position: relative;
+        overflow: hidden;
+        background: #f8f8f8;
+        border-radius: 4px;
+    }
+
+    figure .thumbnail img {
+        width: 100%;
+        height: 200px;
+        object-fit: cover;
+        display: block;
+        transition: transform 0.3s ease;
+    }
+
+    figure .thumbnail img:hover {
+        transform: scale(1.04);
+    }
+
+    @media (max-width: 575px) {
+        figure .thumbnail img { height: 160px; }
+    }
+
+    @media (min-width: 992px) {
+        figure .thumbnail img { height: 220px; }
+    }
+
+    figure .thumbnail .status {
+        position: absolute;
+        top: 8px;
+        left: 8px;
+        background: #e74c3c;
+        color: #fff;
+        font-size: 0.68rem;
+        font-weight: 700;
+        letter-spacing: 0.05em;
+        padding: 3px 8px;
+        border-radius: 3px;
+        z-index: 1;
+        text-transform: uppercase;
+    }
+
+    figure .detail {
+        padding: 0.5rem 0 0.25rem;
+    }
+
+    figure .detail .title {
+        font-size: 0.88rem;
+        font-weight: 600;
+        color: #222;
+        margin: 4px 0 0;
+        line-height: 1.3;
+    }
+</style>
+
+<main>
+
+    {{-- ── PRODUCT DETAIL ── --}}
+    <section class="product-detail-section">
         <div class="container">
-            <div class="row">
-                <div class="col-5">
-                    <div class="thumbnail">
-                        <img src="/uploads/{{$product[0]->thumbnail}}" width="100%" alt="">
+            <div class="row g-3 g-md-4 align-items-start">
+
+                {{-- Image --}}
+                <div class="col-12 col-md-5">
+                    <div class="product-image-wrap">
+                        <img src="/uploads/{{ $product[0]->thumbnail }}" alt="{{ $product[0]->name }}">
                     </div>
                 </div>
-                <div class="col-7">
-                    <div class="detail">
+
+                {{-- Info --}}
+                <div class="col-12 col-md-7">
+                    <div class="product-detail-card">
+
+                        {{-- Price --}}
                         <div class="price-list">
-                        @if ($product[0]->sale_price >0)
-                            <div class="regular-price "><strike> US {{$product[0]->regular_price}}</strike></div>
-                            <div class="sale-price ">US {{$product[0]->sale_price}}</div>
-                        @else
-                            <div class="price">US {{$product[0]->regular_price}}</div>
-                        @endif 
+                            @if ($product[0]->sale_price > 0)
+                                <div class="regular-price"><s>US {{ $product[0]->regular_price }}</s></div>
+                                <div class="sale-price">US {{ $product[0]->sale_price }}</div>
+                            @else
+                                <div class="price">US {{ $product[0]->regular_price }}</div>
+                            @endif
                         </div>
-                        <h5 class="title">{{$product[0]->name}}</h5>
-                        <div class="group-size">
-                            <span class="title">Color Available</span>
-                            <div class="group">
-                            {{$product[0]->attribute_color}}
-                            </div>
+
+                        {{-- Name --}}
+                        <h1 class="product-title">{{ $product[0]->name }}</h1>
+
+                        {{-- Color --}}
+                        <div class="attr-group">
+                            <span class="attr-label">Color Available</span>
+                            <div class="attr-value">{{ $product[0]->attribute_color }}</div>
                         </div>
-                        <div class="group-size">
-                            <span class="title">Size Available</span>
-                            <div class="group">
-                            {{$product[0]->attribute_size}}
-                            </div>
+
+                        {{-- Size --}}
+                        <div class="attr-group">
+                            <span class="attr-label">Size Available</span>
+                            <div class="attr-value">{{ $product[0]->attribute_size }}</div>
                         </div>
-                        <div class="group-size" >
-                            <form method="post" action="/add-cart" style="width: 250px; display: flex; gap: 10px; " >
-                                @csrf
-                                @if (Auth::check()==1)
-                                    @php
-                                        $userId = Auth::user()->id;
-                                    @endphp
-                                @else
-                                    @php
-                                        $userId = 0;
-                                    @endphp
-                                @endif
-                                <input type="hidden" value="{{$product[0]->id}}" name="proId" >
-                                <input type="hidden" value="{{$userId}}" name="userId" >
-                                <input type="number" class="form-control" style="width:  60px;" value="1" name="qty" >
-                                <button class="btn btn-primary mt-2" style="width: 150px;" >Add to cart</button>
-                            </form>
+
+                        {{-- Add to cart --}}
+                        <form method="post" action="/add-cart" class="add-to-cart-form">
+                            @csrf
+                            @php $userId = Auth::check() ? Auth::user()->id : 0; @endphp
+                            <input type="hidden" value="{{ $product[0]->id }}" name="proId">
+                            <input type="hidden" value="{{ $userId }}" name="userId">
+                            <input type="number" class="form-control" value="1" min="1" name="qty">
+                            <button type="submit" class="btn-add-cart">
+                                <i class="fa-solid fa-cart-plus me-1"></i> Add to Cart
+                            </button>
+                        </form>
+
+                        {{-- Description --}}
+                        <div class="description-box">
+                            <span class="attr-label">Description</span>
+                            <p>{{ $product[0]->description }}</p>
                         </div>
-                        <div class="group-size">
-                            <span class="title">Description</span>
-                            <div class="description">
-                            {{$product[0]->description}}
-                            </div>
-                        </div>
+
                     </div>
                 </div>
+
             </div>
         </div>
     </section>
 
-    <section>
+    {{-- ── RELATED PRODUCTS ── --}}
+    <section class="related-section">
         <div class="container">
-            <div class="row">
-                <div class="col-12">
-                    <h3 class="main-title">
-                        RELATED PRODUCTS
-                    </h3>
-                </div>
+
+            <div class="section-divider">
+                <h3>Related Products</h3>
             </div>
-            <div class="row">
-                    @foreach ($relatedProduct as $relatedProductValue )
-                        <div class="col-3">
-                            <figure>
-                                <div class="thumbnail">
-                                    @if ($relatedProductValue->sale_price >0)
-                                        <div class="status">
-                                            Promotion
-                                        </div>
-                                    @endif
-                                    <a href="/product">
-                                        <img src="/uploads/{{$relatedProductValue->thumbnail}}" alt="">
-                                    </a>
-                                </div>
-                                <div class="detail">
-                                    <div class="price-list">
-                                    @if ($relatedProductValue->sale_price >0)
-                                        <div class="regular-price "><strike> US {{$relatedProductValue->regular_price}}</strike></div>
-                                        <div class="sale-price ">US {{$relatedProductValue->sale_price}}</div>
+
+            <div class="row g-3">
+                @foreach ($relatedProduct as $relatedProductValue)
+                    <div class="col-6 col-sm-6 col-md-4 col-lg-3">
+                        <figure>
+                            <div class="thumbnail">
+                                @if ($relatedProductValue->sale_price > 0)
+                                    <div class="status">Promo</div>
+                                @endif
+                                <a href="/product/{{ $relatedProductValue->slug }}">
+                                    <img src="/uploads/{{ $relatedProductValue->thumbnail }}" alt="{{ $relatedProductValue->name }}" loading="lazy">
+                                </a>
+                            </div>
+                            <div class="detail">
+                                <div class="price-list">
+                                    @if ($relatedProductValue->sale_price > 0)
+                                        <div class="regular-price"><s>US {{ $relatedProductValue->regular_price }}</s></div>
+                                        <div class="sale-price">US {{ $relatedProductValue->sale_price }}</div>
                                     @else
-                                     <div class="price">US {{$relatedProductValue->regular_price}}</div>
-                                    @endif 
-                                    </div>
-                                    <h5 class="title">{{$relatedProductValue->name}}</h5>
+                                        <div class="price">US {{ $relatedProductValue->regular_price }}</div>
+                                    @endif
                                 </div>
-                            </figure>
-                        </div>
-                    @endforeach
-                </div>
+                                <h5 class="title">{{ $relatedProductValue->name }}</h5>
+                            </div>
+                        </figure>
+                    </div>
+                @endforeach
+            </div>
+
         </div>
     </section>
 
 </main>
+
 @endsection
