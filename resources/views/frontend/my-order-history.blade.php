@@ -1,76 +1,348 @@
 @extends('frontend.layout')
 @section('title')
-    Search
+    Order Detail
 @endsection
 @section('content')
+
 <style>
-    @import url('https://fonts.googleapis.com/css?family=Open+Sans&display=swap');body{background-color: #eeeeee;font-family: 'Open Sans',serif;font-size: 14px}.container-fluid{margin-top:70px}.card-body{-ms-flex: 1 1 auto;flex: 1 1 auto;padding: 1.40rem}.img-sm{width: 80px;height: 80px}.itemside .info{padding-left: 15px;padding-right: 7px}.table-shopping-cart .price-wrap{line-height: 1.2}.table-shopping-cart .price{font-weight: bold;margin-right: 5px;display: block}.text-muted{color: #969696 !important}a{text-decoration: none !important}.card{position: relative;display: -ms-flexbox;display: flex;-ms-flex-direction: column;flex-direction: column;min-width: 0;word-wrap: break-word;background-color: #fff;background-clip: border-box;border: 1px solid rgba(0,0,0,.125);border-radius: 0px}.itemside{position: relative;display: -webkit-box;display: -ms-flexbox;display: flex;width: 100%}.dlist-align{display: -webkit-box;display: -ms-flexbox;display: flex}[class*="dlist-"]{margin-bottom: 5px}.coupon{border-radius: 1px}.price{font-weight: 600;color: #212529}.btn.btn-out{outline: 1px solid #fff;outline-offset: -5px}.btn-main{border-radius: 2px;text-transform: capitalize;font-size: 15px;padding: 10px 19px;cursor: pointer;color: #fff;width: 100%}.btn-light{color: #ffffff;background-color: #F44336;border-color: #f8f9fa;font-size: 12px}.btn-light:hover{color: #ffffff;background-color: #F44336;border-color: #F44336}.btn-apply{font-size: 11px}
+    .order-detail-section {
+        padding: 2rem 0 4rem;
+        background: #f5f5f5;
+        min-height: 70vh;
+    }
+
+    .page-title {
+        font-size: 1.2rem;
+        font-weight: 800;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        margin-bottom: 1.5rem;
+    }
+
+    /* ── Order info card ── */
+    .info-card {
+        background: #fff;
+        border-radius: 6px;
+        box-shadow: 0 1px 6px rgba(0,0,0,0.07);
+        padding: 1.25rem 1.5rem;
+        margin-bottom: 1.25rem;
+    }
+
+    .info-card .info-label {
+        font-size: 0.7rem;
+        font-weight: 700;
+        letter-spacing: 0.09em;
+        text-transform: uppercase;
+        color: #aaa;
+        margin-bottom: 2px;
+    }
+
+    .info-card .info-value {
+        font-size: 0.9rem;
+        font-weight: 600;
+        color: #222;
+    }
+
+    /* Status badge */
+    .status-badge {
+        display: inline-block;
+        padding: 4px 12px;
+        border-radius: 20px;
+        font-size: 0.75rem;
+        font-weight: 700;
+        letter-spacing: 0.04em;
+        text-transform: capitalize;
+    }
+
+    .status-pending   { background: #fff3cd; color: #856404; }
+    .status-confirmed { background: #d1e7dd; color: #0a5c36; }
+    .status-delivered { background: #cfe2ff; color: #084298; }
+    .status-cancel    { background: #f8d7da; color: #842029; }
+    .status-default   { background: #e2e3e5; color: #41464b; }
+
+    /* ── Items card ── */
+    .items-card {
+        background: #fff;
+        border-radius: 6px;
+        box-shadow: 0 1px 6px rgba(0,0,0,0.07);
+        overflow: hidden;
+        margin-bottom: 1.25rem;
+    }
+
+    .items-card .card-head {
+        padding: 0.85rem 1.25rem;
+        background: #fafafa;
+        border-bottom: 1px solid #f0f0f0;
+        font-size: 0.75rem;
+        font-weight: 700;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        color: #888;
+    }
+
+    /* ── Desktop table ── */
+    .items-table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 0.88rem;
+    }
+
+    .items-table thead th {
+        padding: 0.75rem 1rem;
+        font-size: 0.72rem;
+        font-weight: 700;
+        letter-spacing: 0.07em;
+        color: #888;
+        text-transform: uppercase;
+        border-bottom: 2px solid #f0f0f0;
+        background: #fafafa;
+        white-space: nowrap;
+    }
+
+    .items-table tbody tr {
+        border-bottom: 1px solid #f5f5f5;
+        transition: background 0.12s;
+    }
+
+    .items-table tbody tr:hover { background: #fafafa; }
+    .items-table tbody tr:last-child { border-bottom: none; }
+
+    .items-table td {
+        padding: 0.85rem 1rem;
+        vertical-align: middle;
+        color: #333;
+        font-weight: 500;
+    }
+
+    .items-table td img {
+        width: 58px;
+        height: 58px;
+        object-fit: contain;
+        border-radius: 4px;
+        background: #f8f8f8;
+        display: block;
+    }
+
+    .items-table .price { font-weight: 700; color: #222; }
+
+    /* Hide cols on tablet */
+    @media (min-width: 768px) and (max-width: 991px) {
+        .items-table th.hide-md,
+        .items-table td.hide-md { display: none; }
+    }
+
+    /* ── Mobile item cards ── */
+    .item-mobile-card {
+        display: flex;
+        align-items: center;
+        gap: 0.85rem;
+        padding: 0.85rem 1rem;
+        border-bottom: 1px solid #f5f5f5;
+    }
+
+    .item-mobile-card:last-child { border-bottom: none; }
+
+    .item-mobile-card img {
+        width: 60px;
+        height: 60px;
+        object-fit: contain;
+        border-radius: 4px;
+        background: #f8f8f8;
+        flex-shrink: 0;
+    }
+
+    .item-mobile-card .item-info { flex: 1; min-width: 0; }
+
+    .item-mobile-card .item-name {
+        font-size: 0.88rem;
+        font-weight: 700;
+        color: #222;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .item-mobile-card .item-meta {
+        font-size: 0.78rem;
+        color: #999;
+        margin-top: 3px;
+    }
+
+    .item-mobile-card .item-price {
+        font-size: 0.9rem;
+        font-weight: 700;
+        color: #222;
+        white-space: nowrap;
+    }
+
+    /* Show/hide per breakpoint */
+    .desktop-table { display: none; }
+    .mobile-items  { display: block; }
+
+    @media (min-width: 768px) {
+        .desktop-table { display: block; }
+        .mobile-items  { display: none; }
+    }
+
+    /* ── Cancel button ── */
+    .btn-cancel {
+        display: inline-block;
+        padding: 0.7rem 1.75rem;
+        background: #e74c3c;
+        color: #fff;
+        font-weight: 700;
+        font-size: 0.85rem;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+        border-radius: 4px;
+        text-decoration: none;
+        transition: background 0.2s;
+    }
+
+    .btn-cancel:hover { background: #c0392b; color: #fff; }
+
+    .btn-back {
+        display: inline-block;
+        padding: 0.7rem 1.75rem;
+        background: #222;
+        color: #fff;
+        font-weight: 700;
+        font-size: 0.85rem;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+        border-radius: 4px;
+        text-decoration: none;
+        transition: background 0.2s;
+    }
+
+    .btn-back:hover { background: #444; color: #fff; }
 </style>
-<main class="shop">
-@if (Request::get('cart_id'))
-    <input type="hidden" value="{{Request::get('cart_id')}}" name="cartId" >
-    @endif
-    <section>
-    <div class="container">
-        <div class="row">
-           
-            
-           @if (Session::has('success'))
-            <h3 style="text-align: center;" >{{Session::get('success')}}</h3>
-           @endif
-            <aside class="col-lg-12">
-                <div class="card">
-                    <div class="table-responsive">
-                        <table class="table table-borderless table-shopping-cart">
-                            <thead class="text-muted">
-                                <tr class="small text-uppercase">
-                                    <th scope="col">ID</th>
-                                    <th scope="col">Name</th>
-                                    <th scope="col">Thumbnail</th>
-                                    <th scope="col" width="120">Quantity</th>
-                                    <th scope="col" width="120">Price</th>
-                                    <th scope="col" width="120">Date</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                            @foreach ($orderItems as $orderItemVal )
-                                <tr>
-                                <td>
-                                    <div class="price-wrap"> <h5>{{$orderItemVal->id}}</h5></div>
-                                    </td>
-                                    <td>
-                                    <div class="price-wrap"> <h5>{{$orderItemVal->name}}</h5></div>
-                                    </td>
-                                    <td>
-                                    <img src="/uploads/{{$orderItemVal->thumbnail}}" width="80px" alt="">
-                                    </td>
-                                    <td>
-                                    <div class="price-wrap"> <h5>{{$orderItemVal->quantity}}</h5></div>
-                                    </td>
-                                    <td>
-                                        <div class="price-wrap"> <h5>{{$orderItemVal->price}} $</h5></div>
-                                    </td>
-                                    <td>
-                                        <div class="price"> <h6>{{$orderItemVal->created_at}}</h6></div>
-                                    </td>
-                                    
-                                </tr>
-            @endforeach
-                               
-                            </tbody>
-                        </table>
+
+@php
+function statusClass($status) {
+    return match(strtolower($status ?? '')) {
+        'pending'   => 'status-pending',
+        'confirmed' => 'status-confirmed',
+        'delivered' => 'status-delivered',
+        'cancel'    => 'status-cancel',
+        default     => 'status-default',
+    };
+}
+@endphp
+
+<main>
+    <section class="order-detail-section">
+        <div class="container">
+
+            <h2 class="page-title">Order Detail</h2>
+
+            @if (Session::has('success'))
+                <div class="alert alert-success text-center mb-3">{{ Session::get('success') }}</div>
+            @endif
+
+            {{-- ── ORDER INFO ── --}}
+            <div class="info-card">
+                <div class="row g-3">
+                    <div class="col-6 col-md-2">
+                        <div class="info-label">Order ID</div>
+                        <div class="info-value">#{{ $order[0]->id }}</div>
+                    </div>
+                    <div class="col-6 col-md-2">
+                        <div class="info-label">Status</div>
+                        <div class="info-value">
+                            <span class="status-badge {{ statusClass($order[0]->status) }}">
+                                {{ $order[0]->status }}
+                            </span>
+                        </div>
+                    </div>
+                    <div class="col-6 col-md-2">
+                        <div class="info-label">Total</div>
+                        <div class="info-value">{{ $order[0]->total_amount }} $</div>
+                    </div>
+                    <div class="col-6 col-md-2">
+                        <div class="info-label">Phone</div>
+                        <div class="info-value">{{ $order[0]->phone }}</div>
+                    </div>
+                    <div class="col-12 col-md-4">
+                        <div class="info-label">Address</div>
+                        <div class="info-value">{{ $order[0]->address }}</div>
+                    </div>
+                    <div class="col-12 col-md-4">
+                        <div class="info-label">Date</div>
+                        <div class="info-value">{{ \Carbon\Carbon::parse($order[0]->created_at)->format('d M Y, h:i A') }}</div>
+                    </div>
+                    <div class="col-12 col-md-4">
+                        <div class="info-label">Transaction ID</div>
+                        <div class="info-value">{{ $order[0]->transaction_id }}</div>
                     </div>
                 </div>
+            </div>
+
+            {{-- ── ORDER ITEMS ── --}}
+            <div class="items-card">
+                <div class="card-head">Order Items</div>
+
+                {{-- Desktop table --}}
+                <div class="desktop-table">
+                    <table class="items-table">
+                        <thead>
+                            <tr>
+                                <th class="hide-md">#</th>
+                                <th>Product</th>
+                                <th>Image</th>
+                                <th>Qty</th>
+                                <th>Price</th>
+                                <th class="hide-md">Date</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach ($orderItems as $orderItemVal)
+                                <tr>
+                                    <td class="hide-md">{{ $orderItemVal->id }}</td>
+                                    <td>{{ $orderItemVal->name }}</td>
+                                    <td>
+                                        <img src="/uploads/{{ $orderItemVal->thumbnail }}" alt="{{ $orderItemVal->name }}">
+                                    </td>
+                                    <td>{{ $orderItemVal->quantity }}</td>
+                                    <td class="price">{{ $orderItemVal->price }} $</td>
+                                    <td class="hide-md">{{ \Carbon\Carbon::parse($orderItemVal->created_at)->format('d M Y') }}</td>
+                                </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
+                </div>
+
+                {{-- Mobile cards --}}
+                <div class="mobile-items">
+                    @foreach ($orderItems as $orderItemVal)
+                        <div class="item-mobile-card">
+                            <img src="/uploads/{{ $orderItemVal->thumbnail }}" alt="{{ $orderItemVal->name }}">
+                            <div class="item-info">
+                                <div class="item-name">{{ $orderItemVal->name }}</div>
+                                <div class="item-meta">Qty: {{ $orderItemVal->quantity }} &nbsp;·&nbsp; {{ \Carbon\Carbon::parse($orderItemVal->created_at)->format('d M Y') }}</div>
+                            </div>
+                            <div class="item-price">{{ $orderItemVal->price }} $</div>
+                        </div>
+                    @endforeach
+                </div>
+
+            </div>
+
+            {{-- ── ACTIONS ── --}}
+            <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
+                <a href="/my-order" class="btn-back">
+                    <i class="fa-solid fa-arrow-left me-1"></i> Back to Orders
+                </a>
                 @if ($order[0]->status == 'pending')
-                <a href="/cancel-order/{{$orderItems[0]->order_id}}" class="btn btn-light mt-3 " style="width: 200px; float: right; " data-abc="true">Cancel Order </a> 
-                @else
-
+                    <a href="/cancel-order/{{ $orderItems[0]->order_id }}" class="btn-cancel"
+                       onclick="return confirm('Are you sure you want to cancel this order?')">
+                        <i class="fa-solid fa-xmark me-1"></i> Cancel Order
+                    </a>
                 @endif
-            </aside>
-        </div>
-    </div>
-       
-    </section>
+            </div>
 
+        </div>
+    </section>
 </main>
+
 @endsection
