@@ -1,0 +1,8 @@
+deployment:
+  tasks:
+    - export DEPLOY_DIR=/home/username/public_html
+    - echo "Copying files to $DEPLOY_DIR"
+    - /bin/cp -r * $DEPLOY_DIR
+    - echo "Setting permissions"
+    - /bin/chmod -R 775 $DEPLOY_DIR/storage
+    - /bin/chmod -R 775 $DEPLOY_DIR/bootstrap/cache
