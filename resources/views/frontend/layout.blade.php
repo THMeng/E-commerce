@@ -249,6 +249,20 @@
                 .main-title { font-size: 1.25rem; }
             }
 
+            /* ── Nav avatar ── */
+            .nav-avatar {
+                width: 28px;
+                height: 28px;
+                border-radius: 50%;
+                object-fit: cover;
+                border: 2px solid #ddd;
+                transition: border-color 0.15s;
+            }
+
+            .nav-avatar-wrap:hover .nav-avatar {
+                border-color: #e74c3c;
+            }
+
             /* ── Cart icon ── */
             .cart-icon-wrap {
                 position: relative;
@@ -459,6 +473,15 @@
                                         ->count();
                                 @endphp
                                 <li class="nav-item">
+                                    <a href="/profile" class="cart-icon-wrap nav-avatar-wrap" title="My Profile">
+                                        @if (Auth::user()->profile)
+                                            <img src="/uploads/{{ Auth::user()->profile }}" class="nav-avatar" alt="Profile">
+                                        @else
+                                            <i class="fa-solid fa-circle-user"></i>
+                                        @endif
+                                    </a>
+                                </li>
+                                <li class="nav-item">
                                     <a href="/my-order" class="cart-icon-wrap" title="My Orders">
                                         <i class="fa-solid fa-bag-shopping"></i>
                                     </a>
@@ -492,6 +515,13 @@
                                     ->where('cart_items.status', 0)
                                     ->count();
                             @endphp
+                            <a href="/profile" class="cart-icon-wrap nav-avatar-wrap" title="My Profile">
+                                @if (Auth::user()->profile)
+                                    <img src="/uploads/{{ Auth::user()->profile }}" class="nav-avatar" alt="Profile">
+                                @else
+                                    <i class="fa-solid fa-circle-user"></i>
+                                @endif
+                            </a>
                             <a href="/my-order" class="cart-icon-wrap" title="My Orders">
                                 <i class="fa-solid fa-bag-shopping"></i>
                             </a>
@@ -546,6 +576,9 @@
                                 ->where('cart_items.status', 0)
                                 ->count();
                         @endphp
+                        <a href="/profile">
+                            <i class="fa-solid fa-circle-user"></i> MY PROFILE
+                        </a>
                         <a href="/my-order">
                             <i class="fa-solid fa-bag-shopping"></i> MY ORDERS
                         </a>

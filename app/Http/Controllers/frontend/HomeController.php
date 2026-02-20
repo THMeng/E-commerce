@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Hash;
 
 class HomeController extends Controller
 {
@@ -437,6 +438,61 @@ public function CartItem()
     return redirect('/cart-item')->with('error', 'Failed to remove cart item.');
 }
     
+
+// new feature
+public function Profile()
+{
+    return view('frontend.profile');
+}
+
+public function UpdateProfile(Request $request)
+{
+    $request->validate([
+        'name'  => 'required|string|max:255',
+        'email' => 'required|email|unique:users,email,' . Auth::user()->id,
+    ]);
+
+    DB::table('users')->where('id', Auth::user()->id)->update([
+        'name'       => $request->name,
+        'email'      => $request->email,
+        'updated_at' => date('Y-m-d H:i:s'),
+    ]);
+
+    return redirect('/profile')->with('success', 'Profile updated successfully.');
+}
+
+public function ChangePassword(Request $request)
+{
+    $request->validate([
+        'new_password' => 'required|min:8|confirmed',
+    ]);
+
+    DB::table('users')->where('id', Auth::user()->id)->update([
+        'password'   => Hash::make($request->new_password),
+        'updated_at' => date('Y-m-d H:i:s'),
+    ]);
+
+    return redirect('/profile')->with('success', 'Password changed successfully.');
+}
+
+public function UpdatePhoto(Request $request)
+{
+    $dbUser = DB::table('users')->where('id', Auth::user()->id)->first();
+
+    if ($request->file('avatar')) {
+        $file    = $request->file('avatar');
+        $profile = $this->uploadFile($file);
+    } else {
+        $profile = $dbUser->profile;
+    }
+
+    DB::table('users')->where('id', Auth::user()->id)->update([
+        'profile'    => $profile,
+        'updated_at' => date('Y-m-d H:i:s'),
+    ]);
+
+    return redirect('/profile')->with('success', 'Profile photo updated successfully.');
+}
 
     public function logout($id)
     {

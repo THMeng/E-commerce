@@ -41,8 +41,13 @@ Route::get('/news',         [HomeController::class, 'News']);
 Route::get('/article',      [HomeController::class, 'Article']);
 Route::get('/search',       [HomeController::class, 'Search']);
 Route::get('/search-ajax', [HomeController::class, 'SearchAjax']);
+Route::get('/profile',                 [HomeController::class, 'Profile']);
+Route::put('/profile/update',          [HomeController::class, 'UpdateProfile']);
+Route::put('/profile/change-password', [HomeController::class, 'ChangePassword']);
+Route::put('/profile/update-photo',    [HomeController::class, 'UpdatePhoto']);
 Route::get('/404',       [HomeController::class, 'notFound']);
 Route::get('/logout/{id}',[HomeController::class,'logout']);
+
 
 
 // User SignIn & SignUp
