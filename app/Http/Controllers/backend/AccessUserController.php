@@ -24,12 +24,30 @@ class AccessUserController extends Controller
         }
     }
 
-    public function listOrder(){
-        $dbOrder = DB::table('order')->get();
-        $order = DB::table('order')->where('status', 'pending')->count();
-        return view('backend.list-order',['order'=>$dbOrder , 'orderRow'=>$order]);
-        
-    }
+    public function listOrder(Request $request)
+{
+    $limitPage   = 10;
+    $currentPage = $request->input('page', 1);
+    $offset      = ($currentPage - 1) * $limitPage;
+
+    $order = DB::table('order')
+        ->orderByDesc('id')
+        ->limit($limitPage)
+        ->offset($offset)
+        ->get();
+
+    $orderCount = DB::table('order')->count();
+    $totalPage  = ceil($orderCount / $limitPage);
+
+    $orderRow = DB::table('order')->where('status', 'pending')->count();
+
+    return view('backend.list-order', [
+        'order'       => $order,
+        'orderRow'    => $orderRow,
+        'totalPage'   => $totalPage,
+        'currentPage' => $currentPage,
+    ]);
+}
 
     public function rejectOrder(Request $request){
         $access = DB::table('order')->where('id',$request->id)->update([

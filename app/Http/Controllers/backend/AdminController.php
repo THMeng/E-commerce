@@ -129,14 +129,32 @@ class AdminController extends Controller
         }
     }
 
-    public function listLogActivity(){
-        $order = DB::table('order')->where('status', 'pending')->count();
-        $Dblog = DB::table('log_activity')
-        ->leftJoin('users','users.id','log_activity.author')
-        ->select('users.name','log_activity.*')
+    public function listLogActivity(Request $request)
+{
+    $limitPage   = 10;
+    $currentPage = $request->input('page', 1);
+    $offset      = ($currentPage - 1) * $limitPage;
+
+    $Dblog = DB::table('log_activity')
+        ->leftJoin('users', 'users.id', 'log_activity.author')
+        ->select('users.name', 'log_activity.*')
+        ->orderByDesc('log_activity.id')
+        ->limit($limitPage)
+        ->offset($offset)
         ->get();
-        return view('backend.list-log',['log'=>$Dblog , 'orderRow'=>$order ]);
-    }
+
+    $logCount  = DB::table('log_activity')->count();
+    $totalPage = ceil($logCount / $limitPage);
+
+    $order = DB::table('order')->where('status', 'pending')->count();
+
+    return view('backend.list-log', [
+        'log'         => $Dblog,
+        'orderRow'    => $order,
+        'totalPage'   => $totalPage,
+        'currentPage' => $currentPage,
+    ]);
+}
 
     public function logDetail($post,$id,$ids){
         $order = DB::table('order')->where('status', 'pending')->count();
