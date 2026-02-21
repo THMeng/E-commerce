@@ -44,7 +44,7 @@ Route::get('/search-ajax', [HomeController::class, 'SearchAjax']);
 Route::get('/profile',                 [HomeController::class, 'Profile']);
 Route::put('/profile/update',          [HomeController::class, 'UpdateProfile']);
 Route::put('/profile/change-password', [HomeController::class, 'ChangePassword']);
-Route::put('/profile/update-photo',    [HomeController::class, 'UpdatePhoto']);
+Route::post('/profile/update-photo',   [HomeController::class, 'UpdatePhoto']);
 Route::get('/404',       [HomeController::class, 'notFound']);
 Route::get('/logout/{id}',[HomeController::class,'logout']);
 

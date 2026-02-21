@@ -456,6 +456,7 @@ public function UpdateProfile(Request $request)
         'name'       => $request->name,
         'email'      => $request->email,
         'updated_at' => date('Y-m-d H:i:s'),
+        // ✅ Do NOT update profile column here — handled by UpdatePhoto()
     ]);
 
     return redirect('/profile')->with('success', 'Profile updated successfully.');
@@ -477,21 +478,23 @@ public function ChangePassword(Request $request)
 
 public function UpdatePhoto(Request $request)
 {
-    $dbUser = DB::table('users')->where('id', Auth::user()->id)->first();
+    $request->validate([
+        'avatar' => 'required|image|mimes:jpeg,png,jpg,webp|max:2048',
+    ]);
 
     if ($request->file('avatar')) {
         $file    = $request->file('avatar');
         $profile = $this->uploadFile($file);
-    } else {
-        $profile = $dbUser->profile;
+
+        DB::table('users')->where('id', Auth::user()->id)->update([
+            'profile'    => $profile,
+            'updated_at' => date('Y-m-d H:i:s'),
+        ]);
+
+        return redirect('/profile')->with('success', 'Profile photo updated successfully.');
     }
 
-    DB::table('users')->where('id', Auth::user()->id)->update([
-        'profile'    => $profile,
-        'updated_at' => date('Y-m-d H:i:s'),
-    ]);
-
-    return redirect('/profile')->with('success', 'Profile photo updated successfully.');
+    return redirect('/profile')->with('error', 'No image file received.');
 }
 
     public function logout($id)
