@@ -442,8 +442,17 @@ public function CartItem()
 // new feature
 public function Profile()
 {
-    $user = DB::table('users')->where('id', Auth::user()->id)->first();
-    return view('frontend.profile', ['user' => $user]);
+    try {
+        $user = DB::table('users')->where('id', Auth::user()->id)->first();
+        return view('frontend.profile', ['user' => $user]);
+    } catch (\Exception $e) {
+        // Log the exact error
+        \Log::error('Profile page error: ' . $e->getMessage());
+        \Log::error($e->getTraceAsString());
+
+        // Show error on screen (remove this after you find the issue)
+        return response('ERROR: ' . $e->getMessage(), 500);
+    }
 }
 
 public function UpdateProfile(Request $request)
