@@ -94,22 +94,44 @@ class HomeController extends Controller
     ]);
 }
 
-    public function Product($slug)
-    {
-        $product = DB::table('product')->where('slug', $slug)->get();
-        if (count($product) == 0) {
-            return redirect('/404');
-        }
-        $categoryId = $product[0]->category;
-        $currentViewer = $product[0]->viewer;
-        $increaseViewer = $currentViewer + 1;
-        $productId = $product[0]->id;
-        DB::table('product')->where('id', $productId)->update([
-            'viewer' => $increaseViewer
-        ]);
-        $relatedProduct = DB::table('product')->where('category', $categoryId)->where('id', '<>', $productId)->limit(4)->orderByDesc('id')->get();
-        return view('frontend.product', ['product' => $product, 'relatedProduct' => $relatedProduct]);
+public function Product($slug)
+{
+    $product = DB::table('product')->where('slug', $slug)->get();
+    if (count($product) == 0) {
+        return redirect('/404');
     }
+
+    $categoryId    = $product[0]->category;
+    $currentViewer = $product[0]->viewer;
+    $productId     = $product[0]->id;
+
+    DB::table('product')->where('id', $productId)->update([
+        'viewer' => $currentViewer + 1
+    ]);
+
+    $relatedProduct = DB::table('product')
+        ->where('category', $categoryId)
+        ->where('id', '<>', $productId)
+        ->limit(4)
+        ->orderByDesc('id')
+        ->get();
+
+    // Favorite IDs for logged-in user
+    $favIds = [];
+    if (Auth::check()) {
+        $favIds = DB::table('favorites')
+            ->where('user_id', Auth::user()->id)
+            ->pluck('product_id')
+            ->toArray();
+    }
+
+    return view('frontend.product', [
+        'product'        => $product,
+        'relatedProduct' => $relatedProduct,
+        'favIds'         => $favIds,
+    ]);
+}
+    
     // public function ShopDetail($slug)
     // {
     //     $product = DB::table('product')->where('slug', $slug)->get();

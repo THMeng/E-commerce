@@ -155,11 +155,22 @@
         white-space: nowrap;
     }
 
-    .btn-fav-detail:hover,
+    .btn-fav-detail:hover {
+        background: #fff0f0;
+        border-color: #e74c3c;
+        color: #e74c3c;
+    }
+
     .btn-fav-detail.active {
         background: #fff0f0;
         border-color: #e74c3c;
         color: #e74c3c;
+    }
+
+    .btn-fav-detail.active:hover {
+        background: #e74c3c;
+        border-color: #c0392b;
+        color: #fff;
     }
 
     .btn-fav-detail i { font-size: 1rem; }
@@ -272,8 +283,27 @@
         transition: color 0.15s;
     }
 
-    .fav-heart-btn.active i,
+    /* Already favorited — always show solid red */
+    .fav-heart-btn.active {
+        background: #fff;
+    }
+
+    .fav-heart-btn.active i {
+        color: #e74c3c;
+    }
+
+    /* Hover on any button — show red */
     .fav-heart-btn:hover i { color: #e74c3c; }
+
+    /* Hover on active — darker red to signal "click to remove" */
+    .fav-heart-btn.active:hover {
+        background: #e74c3c;
+        transform: scale(1.12);
+    }
+
+    .fav-heart-btn.active:hover i {
+        color: #fff;
+    }
 
     figure .detail { padding: 0.5rem 0 0.25rem; }
 
@@ -348,7 +378,7 @@
                                 onclick="toggleFav(this)"
                                 title="{{ $isDetailFav ? 'Remove from favorites' : 'Add to favorites' }}">
                                 <i class="{{ $isDetailFav ? 'fa-solid' : 'fa-regular' }} fa-heart"></i>
-                                {{ $isDetailFav ? 'Saved' : 'Favorite' }}
+                                {{ $isDetailFav ? 'Favorite' : 'Favorite' }}
                             </button>
                         </form>
 
@@ -417,5 +447,48 @@
     </section>
 
 </main>
+
+<script>
+function toggleFav(btn) {
+    const productId = btn.getAttribute('data-product');
+
+    fetch('/favorite/toggle', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+        },
+        body: JSON.stringify({ product_id: productId })
+    })
+    .then(res => {
+        if (res.status === 401) {
+            window.location.href = '/signin';
+            return null;
+        }
+        return res.json();
+    })
+    .then(data => {
+        if (!data) return;
+        const icon = btn.querySelector('i');
+
+        if (data.status === 'added') {
+            btn.classList.add('active');
+            icon.classList.replace('fa-regular', 'fa-solid');
+            btn.title = 'Remove from favorites';
+            if (btn.classList.contains('btn-fav-detail')) {
+                btn.lastChild.textContent = ' Favorite';
+            }
+        } else {
+            btn.classList.remove('active');
+            icon.classList.replace('fa-solid', 'fa-regular');
+            btn.title = 'Add to favorites';
+            if (btn.classList.contains('btn-fav-detail')) {
+                btn.lastChild.textContent = ' Favorite';
+            }
+        }
+    })
+    .catch(err => console.error('Favorite error:', err));
+}
+</script>
 
 @endsection
