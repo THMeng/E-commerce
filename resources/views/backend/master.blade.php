@@ -1,423 +1,599 @@
 <!DOCTYPE html>
-<html
-  lang="en"
-  class="light-style layout-menu-fixed"
-  dir="ltr"
-  data-theme="theme-default"
-  data-assets-path="assets/"
-  data-template="vertical-menu-template-free"
->
-  <head>
+<html lang="en">
+<head>
     <meta charset="utf-8" />
-    <meta
-      name="viewport"
-      content="width=device-width, initial-scale=1.0, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0"
-    />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@yield('site-title') — Admin</title>
 
-    <title>@yield('site-title')</title>
-    
-    <meta name="description" content="" />
-    <!-- Favicon -->
-    <link rel="icon" type="image/x-icon" href="assets/img/favicon/favicon.ico" />
     <!-- Fonts -->
-    <link rel="preconnect" href="{{url('https://fonts.googleapis.com')}}" />
-    <link rel="preconnect" href="{{url('https://fonts.gstatic.com')}}" crossorigin />
-    <link
-      href="{{url('https://fonts.googleapis.com/css2?family=Public+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400;1,500;1,600;1,700&display=swap')}}"
-      rel="stylesheet"
-    />
-    <!-- Icons. Uncomment required icon fonts -->
-    <link rel="stylesheet" href="{{url('backend/vendor/fonts/boxicons.css')}}" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+
+    <!-- Icons -->
+    <link rel="stylesheet" href="{{ url('backend/vendor/fonts/boxicons.css') }}" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+
     <!-- Core CSS -->
-    <link rel="stylesheet" href="{{url('backend/vendor/css/core.css')}}" class="template-customizer-core-css" />
-    <link rel="stylesheet" href="{{url('backend/vendor/css/theme-default.css')}}" class="template-customizer-theme-css" />
-    <link rel="stylesheet" href="{{url('backend/css/demo.css')}}" />
+    <link rel="stylesheet" href="{{ url('backend/vendor/css/core.css') }}" />
+    <link rel="stylesheet" href="{{ url('backend/vendor/css/theme-default.css') }}" />
+    <link rel="stylesheet" href="{{ url('backend/css/demo.css') }}" />
+    <link rel="stylesheet" href="{{ url('backend/vendor/libs/perfect-scrollbar/perfect-scrollbar.css') }}" />
 
-    {{-- Select2 --}}
-    <link rel="stylesheet" href="{{url('https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css')}}">
+    <!-- Select2 -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css">
 
-    {{-- Jquery --}}
-    <script src="{{url('https://ajax.googleapis.com/ajax/libs/jquery/3.6.3/jquery.min.js')}}"></script>
+    <!-- jQuery -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.3/jquery.min.js"></script>
 
-    <!-- Vendors CSS -->
-    <link rel="stylesheet" href="{{url('backend/vendor/libs/perfect-scrollbar/perfect-scrollbar.css')}}" />
-    <script src="{{url('backend/vendor/js/helpers.js')}}"></script>
-    <script src="{{url('backend/js/config.js')}}"></script>
-  <style>
-    .pagination_rounded, .pagination_square {
-    display: inline-block;
-    margin-left:400px;
-    margin-top:50px;
-}
+    <script src="{{ url('backend/vendor/js/helpers.js') }}"></script>
+    <script src="{{ url('backend/js/config.js') }}"></script>
 
-.pagination_rounded ul {
-    margin: 0;
-    padding: 0;
-    list-style: none;
-}
+    <style>
+        /* ── Base ── */
+        *, *::before, *::after { box-sizing: border-box; }
 
-.pagination_rounded li:first-child {
-    margin-left: 0px;
-}
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #f4f5fb;
+            overflow-x: hidden;
+        }
 
-.pagination_rounded ul li {
-    float: left;
-    margin-left: 20px;
-}
+        /* ── Sidebar ── */
+        #layout-menu {
+            background: #fff !important;
+            border-right: none !important;
+            box-shadow: 2px 0 12px rgba(0,0,0,0.06);
+            transition: width 0.3s ease;
+        }
 
-.pagination_rounded ul li a:hover {
-    background: #4285f4;
-    color: #fff;
-    border: 1px solid #4285f4;
-}
+        /* Brand */
+        .app-brand {
+            padding: 1.2rem 1.5rem !important;
+            border-bottom: 1px solid #f0f0f0 !important;
+        }
 
-a:link {
-  text-decoration: none;
-}
+        .app-brand-logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
 
-.pagination_rounded .prev {
-    margin-left: 0px;
-    border-radius: 35px;
-    width: 90px;
-    height: 34px;
-    line-height: 34px;
-}
+        .sidebar-logo {
+            height: 36px;
+            width: auto;
+            object-fit: contain;
+        }
 
+        .app-brand-text {
+            color: #fff !important;
+            font-size: 1rem !important;
+            font-weight: 800 !important;
+            letter-spacing: 0.06em !important;
+        }
 
-.pagination_rounded ul li a {
-    float: left;
-    color: #4285f4;
-    border-radius: 50%;
-    line-height: 30px;
-    height: 30px;
-    width: 30px;
-    text-align: center;
-    margin-bottom: 40px;
-    border: 1px solid #e0e0e0;
-}
+        /* Menu items */
+        .menu-inner > .menu-item > .menu-link {
+            color: #555 !important;
+            border-radius: 8px !important;
+            margin: 2px 12px !important;
+            padding: 0.6rem 1rem !important;
+            transition: all 0.15s !important;
+            font-size: 0.88rem !important;
+            font-weight: 500 !important;
+        }
 
-.pagination_rounded .prev i {
-    margin-right: 10px;
-}
+        .menu-inner > .menu-item > .menu-link:hover,
+        .menu-inner > .menu-item.active > .menu-link {
+            background: #f5f5f5 !important;
+            color: #222 !important;
+        }
 
-.pagination_rounded .next {
-    border-radius: 35px;
-    width: 90px;
-    height: 34px;
-    line-height: 34px;
-}
+        .menu-inner > .menu-item.active > .menu-link {
+            background: #222 !important;
+            color: #fff !important;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15) !important;
+        }
 
-.visible-xs {
-    display: none!important;
-}
-  </style>
-  </head>
-  <body>
-    <!-- Layout wrapper -->
-    <div class="layout-wrapper layout-content-navbar">
-      <div class="layout-container">
-        <!-- Menu -->
+        .menu-icon { color: #aaa !important; }
 
-        <aside id="layout-menu" class="layout-menu menu-vertical menu bg-menu-theme">
-          <div class="app-brand demo">
-            <a href="index.html" class="app-brand-link">
-              <!-- <span class="app-brand-logo demo">
-                <svg
-                  width="25"
-                  viewBox="0 0 25 42"
-                  version="1.1"
-                  xmlns="http://www.w3.org/2000/svg"
-                  xmlns:xlink="http://www.w3.org/1999/xlink"
-                >
-                  <defs>
-                    <path
-                      d="M13.7918663,0.358365126 L3.39788168,7.44174259 C0.566865006,9.69408886 -0.379795268,12.4788597 0.557900856,15.7960551 C0.68998853,16.2305145 1.09562888,17.7872135 3.12357076,19.2293357 C3.8146334,19.7207684 5.32369333,20.3834223 7.65075054,21.2172976 L7.59773219,21.2525164 L2.63468769,24.5493413 C0.445452254,26.3002124 0.0884951797,28.5083815 1.56381646,31.1738486 C2.83770406,32.8170431 5.20850219,33.2640127 7.09180128,32.5391577 C8.347334,32.0559211 11.4559176,30.0011079 16.4175519,26.3747182 C18.0338572,24.4997857 18.6973423,22.4544883 18.4080071,20.2388261 C17.963753,17.5346866 16.1776345,15.5799961 13.0496516,14.3747546 L10.9194936,13.4715819 L18.6192054,7.984237 L13.7918663,0.358365126 Z"
-                      id="path-1"
-                    ></path>
-                    <path
-                      d="M5.47320593,6.00457225 C4.05321814,8.216144 4.36334763,10.0722806 6.40359441,11.5729822 C8.61520715,12.571656 10.0999176,13.2171421 10.8577257,13.5094407 L15.5088241,14.433041 L18.6192054,7.984237 C15.5364148,3.11535317 13.9273018,0.573395879 13.7918663,0.358365126 C13.5790555,0.511491653 10.8061687,2.3935607 5.47320593,6.00457225 Z"
-                      id="path-3"
-                    ></path>
-                    <path
-                      d="M7.50063644,21.2294429 L12.3234468,23.3159332 C14.1688022,24.7579751 14.397098,26.4880487 13.008334,28.506154 C11.6195701,30.5242593 10.3099883,31.790241 9.07958868,32.3040991 C5.78142938,33.4346997 4.13234973,34 4.13234973,34 C4.13234973,34 2.75489982,33.0538207 2.37032616e-14,31.1614621 C-0.55822714,27.8186216 -0.55822714,26.0572515 -4.05231404e-15,25.8773518 C0.83734071,25.6075023 2.77988457,22.8248993 3.3049379,22.52991 C3.65497346,22.3332504 5.05353963,21.8997614 7.50063644,21.2294429 Z"
-                      id="path-4"
-                    ></path>
-                    <path
-                      d="M20.6,7.13333333 L25.6,13.8 C26.2627417,14.6836556 26.0836556,15.9372583 25.2,16.6 C24.8538077,16.8596443 24.4327404,17 24,17 L14,17 C12.8954305,17 12,16.1045695 12,15 C12,14.5672596 12.1403557,14.1461923 12.4,13.8 L17.4,7.13333333 C18.0627417,6.24967773 19.3163444,6.07059163 20.2,6.73333333 C20.3516113,6.84704183 20.4862915,6.981722 20.6,7.13333333 Z"
-                      id="path-5"
-                    ></path>
-                  </defs>
-                  <g id="g-app-brand" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
-                    <g id="Brand-Logo" transform="translate(-27.000000, -15.000000)">
-                      <g id="Icon" transform="translate(27.000000, 15.000000)">
-                        <g id="Mask" transform="translate(0.000000, 8.000000)">
-                          <mask id="mask-2" fill="white">
-                            <use xlink:href="#path-1"></use>
-                          </mask>
-                          <use fill="#696cff" xlink:href="#path-1"></use>
-                          <g id="Path-3" mask="url(#mask-2)">
-                            <use fill="#696cff" xlink:href="#path-3"></use>
-                            <use fill-opacity="0.2" fill="#FFFFFF" xlink:href="#path-3"></use>
-                          </g>
-                          <g id="Path-4" mask="url(#mask-2)">
-                            <use fill="#696cff" xlink:href="#path-4"></use>
-                            <use fill-opacity="0.2" fill="#FFFFFF" xlink:href="#path-4"></use>
-                          </g>
-                        </g>
-                        <g
-                          id="Triangle"
-                          transform="translate(19.000000, 11.000000) rotate(-300.000000) translate(-19.000000, -11.000000) "
-                        >
-                          <use fill="#696cff" xlink:href="#path-5"></use>
-                          <use fill-opacity="0.2" fill="#FFFFFF" xlink:href="#path-5"></use>
-                        </g>
-                      </g>
-                    </g>
-                  </g>
-                </svg>
-              </span> -->
-              <span class="app-brand-text demo menu-text fw-bolder ms-2">ADMIN</span>
+        .menu-inner > .menu-item.active > .menu-link .menu-icon,
+        .menu-inner > .menu-item > .menu-link:hover .menu-icon {
+            color: #222 !important;
+        }
 
-            </a>
+        /* Submenu */
+        .menu-sub {
+            background: #f8f8f8 !important;
+            border-radius: 6px !important;
+            margin: 0 12px !important;
+            padding: 4px 0 !important;
+        }
 
-            <a href="javascript:void(0);" class="layout-menu-toggle menu-link text-large ms-auto d-block d-xl-none">
-              <i class="bx bx-chevron-left bx-sm align-middle"></i>
-            </a>
-          </div>
+        .menu-sub .menu-item .menu-link {
+            color: #666 !important;
+            font-size: 0.83rem !important;
+            padding: 0.45rem 1rem 0.45rem 2.5rem !important;
+            border-radius: 6px !important;
+            transition: all 0.15s !important;
+        }
 
-          <div class="menu-inner-shadow"></div>
+        .menu-sub .menu-item .menu-link:hover {
+            color: #222 !important;
+            background: #efefef !important;
+        }
 
-          <ul class="menu-inner py-1">
-            <!-- Dashboard -->
-            <li class="menu-item">
-              <a href="/admin" class="menu-link">
-                <i class="menu-icon tf-icons bx bx-home-circle"></i>
-                <div data-i18n="Analytics">Dashboard</div>
-              </a>
-            </li>
+        /* Menu section label */
+        .menu-header {
+            color: #bbb !important;
+            font-size: 0.68rem !important;
+            letter-spacing: 0.1em !important;
+            text-transform: uppercase !important;
+            padding: 1rem 1.5rem 0.3rem !important;
+            font-weight: 700 !important;
+        }
 
-            <!-- Layouts -->
-            <li class="menu-item">
-              <a href="javascript:void(0);" class="menu-link menu-toggle">
-                <i class="menu-icon tf-icons bx bx-bolt-circle"></i>
-                <div data-i18n="Layouts">Logo</div>
-              </a>
+        /* Order badge */
+        .order-badge {
+            background: #e74c3c;
+            color: #fff;
+            font-size: 0.65rem;
+            font-weight: 800;
+            min-width: 20px;
+            height: 20px;
+            border-radius: 10px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0 5px;
+            margin-left: 8px;
+        }
 
-              <ul class="menu-sub">
-                <li class="menu-item">
-                  <a href="/admin/list-logo" class="menu-link">
-                    <div data-i18n="Without menu">View Post</div>
-                  </a>
-                </li>
-                <li class="menu-item">
-                  <a href="/admin/add-logo" class="menu-link">
-                    <div data-i18n="Without menu">Add Post</div>
-                  </a>
-                </li>
-              </ul>
-            </li>
+        /* Toggle arrow */
+        .menu-arrow {
+            color: #ccc !important;
+        }
 
-            <!-- Layouts -->
-            <li class="menu-item">
-              <a href="javascript:void(0);" class="menu-link menu-toggle">
-                <i class="menu-icon tf-icons bx bx-bolt-circle"></i>
-                <div data-i18n="Layouts">Products</div>
-              </a>
+        /* ── Navbar ── */
+        #layout-navbar {
+            background: #fff !important;
+            border-bottom: 1px solid #eee !important;
+            box-shadow: 0 1px 8px rgba(0,0,0,0.05) !important;
+            padding: 0.75rem 1.5rem !important;
+        }
 
-              <ul class="menu-sub">
-                <li class="menu-item">
-                  <a href="/admin/list-product/" class="menu-link">
-                    <div data-i18n="Without menu">View Post</div>
-                  </a>
-                </li>
-                <li class="menu-item">
-                  <a href="/admin/add-product" class="menu-link">
-                    <div data-i18n="Without menu">Add Post</div>
-                  </a>
-                </li>
-              </ul>
-            </li>
+        .page-main-title {
+            font-size: 1rem !important;
+            font-weight: 700 !important;
+            color: #222 !important;
+            letter-spacing: 0.02em !important;
+        }
 
+        /* Avatar */
+        .avatar img {
+            width: 38px !important;
+            height: 38px !important;
+            object-fit: cover !important;
+            border-radius: 50% !important;
+            border: 2px solid #eee !important;
+            transition: border-color 0.15s !important;
+        }
 
-            <!-- Layouts -->
-            <li class="menu-item">
-              <a href="javascript:void(0);" class="menu-link menu-toggle">
-                <i class="menu-icon tf-icons bx bx-bolt-circle"></i>
-                <div data-i18n="Layouts">Category</div>
-              </a>
+        .avatar img:hover { border-color: #e74c3c !important; }
 
-              <ul class="menu-sub">
-                <li class="menu-item">
-                  <a href="/admin/list-category" class="menu-link">
-                    <div data-i18n="Without menu">View Post</div>
-                  </a>
-                </li>
-                <li class="menu-item">
-                  <a href="/admin/add-category" class="menu-link">
-                    <div data-i18n="Without menu">Add Post</div>
-                  </a>
-                </li>
-              </ul>
-            </li>
+        /* Dropdown */
+        .dropdown-menu {
+            border: none !important;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.12) !important;
+            border-radius: 8px !important;
+            padding: 0.5rem !important;
+        }
 
-            <li class="menu-item">
-                <a href="javascript:void(0);" class="menu-link menu-toggle">
-                  <i class="menu-icon tf-icons bx bx-bolt-circle"></i>
-                  <div data-i18n="Layouts">Attribute</div>
+        .dropdown-item {
+            border-radius: 6px !important;
+            font-size: 0.88rem !important;
+            padding: 0.5rem 0.85rem !important;
+            color: #444 !important;
+            font-weight: 500 !important;
+            transition: background 0.12s !important;
+        }
+
+        .dropdown-item:hover {
+            background: #f5f5f5 !important;
+            color: #222 !important;
+        }
+
+        .dropdown-item.text-danger:hover {
+            background: #fff5f5 !important;
+            color: #e74c3c !important;
+        }
+
+        /* ── Content area ── */
+        .content-wrapper {
+            background: #f4f5fb !important;
+            padding: 1.5rem !important;
+        }
+
+        /* ── Cards ── */
+        .card {
+            border: none !important;
+            border-radius: 10px !important;
+            box-shadow: 0 1px 8px rgba(0,0,0,0.06) !important;
+        }
+
+        .card-header {
+            background: #fff !important;
+            border-bottom: 1px solid #f0f0f0 !important;
+            border-radius: 10px 10px 0 0 !important;
+            padding: 1rem 1.25rem !important;
+            font-weight: 700 !important;
+            font-size: 0.9rem !important;
+        }
+
+        /* ── Tables ── */
+        .table {
+            font-size: 0.88rem !important;
+        }
+
+        .table thead th {
+            background: #fafafa !important;
+            font-size: 0.72rem !important;
+            font-weight: 700 !important;
+            letter-spacing: 0.07em !important;
+            text-transform: uppercase !important;
+            color: #888 !important;
+            border-bottom: 2px solid #f0f0f0 !important;
+            padding: 0.75rem 1rem !important;
+            white-space: nowrap !important;
+        }
+
+        .table tbody td {
+            padding: 0.75rem 1rem !important;
+            vertical-align: middle !important;
+            color: #444 !important;
+            border-bottom: 1px solid #f8f8f8 !important;
+        }
+
+        .table tbody tr:hover { background: #fafafa !important; }
+
+        /* ── Buttons ── */
+        .btn-primary {
+            background: #222 !important;
+            border-color: #222 !important;
+            font-weight: 700 !important;
+            letter-spacing: 0.04em !important;
+            border-radius: 6px !important;
+            font-size: 0.85rem !important;
+        }
+
+        .btn-primary:hover {
+            background: #e74c3c !important;
+            border-color: #e74c3c !important;
+        }
+
+        .btn-danger {
+            background: #e74c3c !important;
+            border-color: #e74c3c !important;
+            border-radius: 6px !important;
+        }
+
+        .btn-danger:hover {
+            background: #c0392b !important;
+            border-color: #c0392b !important;
+        }
+
+        .btn-sm {
+            padding: 0.35rem 0.75rem !important;
+            font-size: 0.78rem !important;
+        }
+
+        /* ── Pagination ── */
+        .pagination {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            margin: 1rem 0 0;
+            padding: 0;
+            list-style: none;
+        }
+
+        .pagination li a,
+        .pagination li span {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 34px;
+            height: 34px;
+            padding: 0 8px;
+            font-size: 0.82rem;
+            font-weight: 700;
+            border: 1.5px solid #e0e0e0;
+            border-radius: 6px;
+            color: #555;
+            text-decoration: none;
+            background: #fff;
+            transition: all 0.15s;
+        }
+
+        .pagination li a:hover {
+            background: #222;
+            color: #fff;
+            border-color: #222;
+        }
+
+        .pagination li.active a {
+            background: #e74c3c;
+            color: #fff;
+            border-color: #e74c3c;
+        }
+
+        .pagination li.disabled span {
+            color: #ccc;
+            cursor: not-allowed;
+        }
+
+        /* ── Form inputs ── */
+        .form-control, .form-select {
+            border: 1.5px solid #e0e0e0 !important;
+            border-radius: 6px !important;
+            font-size: 0.88rem !important;
+            color: #333 !important;
+            transition: border-color 0.15s, box-shadow 0.15s !important;
+        }
+
+        .form-control:focus, .form-select:focus {
+            border-color: #222 !important;
+            box-shadow: 0 0 0 3px rgba(34,34,34,0.08) !important;
+        }
+
+        .form-label {
+            font-size: 0.78rem !important;
+            font-weight: 700 !important;
+            letter-spacing: 0.06em !important;
+            text-transform: uppercase !important;
+            color: #666 !important;
+            margin-bottom: 6px !important;
+        }
+
+        /* ── Mobile responsive ── */
+        @media (max-width: 991px) {
+            .content-wrapper { padding: 1rem !important; }
+
+            .table thead th,
+            .table tbody td { padding: 0.6rem 0.75rem !important; }
+
+            #layout-navbar { padding: 0.6rem 1rem !important; }
+        }
+
+        @media (max-width: 575px) {
+            .content-wrapper { padding: 0.75rem !important; }
+            .card { border-radius: 8px !important; }
+            .page-main-title { font-size: 0.9rem !important; }
+        }
+    </style>
+</head>
+
+<body class="light-style layout-menu-fixed">
+<div class="layout-wrapper layout-content-navbar">
+    <div class="layout-container">
+
+        <!-- ── SIDEBAR ── -->
+        <aside id="layout-menu" class="layout-menu menu-vertical menu">
+
+            <div class="app-brand demo">
+                <a href="/admin" class="app-brand-link app-brand-logo">
+                    @php $logo = DB::table('logo')->first(); @endphp
+                    @if ($logo)
+                        <img src="/uploads/{{ $logo->thumbnail }}" alt="Logo" class="sidebar-logo">
+                    @else
+                        <span class="app-brand-text">ADMIN</span>
+                    @endif
                 </a>
-
-                <ul class="menu-sub">
-                  <li class="menu-item">
-                    <a href="/admin/list-attribute" class="menu-link">
-                      <div data-i18n="Without menu">View Post</div>
-                    </a>
-                  </li>
-                  <li class="menu-item">
-                    <a href="/admin/add-attribute" class="menu-link">
-                      <div data-i18n="Without menu">Add Post</div>
-                    </a>
-                  </li>
-                </ul>
-              </li>
-
-              <li class="menu-item">
-                <a href="javascript:void(0);" class="menu-link menu-toggle">
-                  <i class="menu-icon tf-icons bx bx-bolt-circle"></i>
-                  <div data-i18n="Layouts">Access Order</div>
-                      @if (isset($orderRow)>0)
-                <div style="margin-left: 15px; background-color: #4285f4; padding: 5px 5px 0px 5px; border-radius: 30px; color: white; width: 23px; text-align: center; height: 25px;">{{$orderRow}}</div>
-                @endif
-                <i class="menu-arrow"></i>
+                <a href="javascript:void(0);" class="layout-menu-toggle menu-link text-large ms-auto d-block d-xl-none">
+                    <i class="bx bx-chevron-left bx-sm align-middle" style="color:#888;"></i>
                 </a>
+            </div>
 
-                <ul class="menu-sub">
-                  <li class="menu-item">
-                    <a href="/admin/view-order" class="menu-link">
-                      <div data-i18n="Without menu">View Order</div>
+            <div class="menu-inner-shadow"></div>
+
+            <ul class="menu-inner py-1">
+
+                {{-- Dashboard --}}
+                <li class="menu-item {{ Request::is('admin') ? 'active' : '' }}">
+                    <a href="/admin" class="menu-link">
+                        <i class="menu-icon tf-icons bx bx-home-circle"></i>
+                        <div>Dashboard</div>
                     </a>
-                  </li>
-                  <li class="menu-item">
-                    <a href="/admin/add-attribute" class="menu-link">
-                      <div data-i18n="Without menu">Add Post</div>
-                    </a>
-                  </li>
-                </ul>
-              </li>
-
-
-
-            <!-- Layouts -->
-            <li class="menu-item">
-              <a href="javascript:void(0);" class="menu-link menu-toggle">
-                <i class="menu-icon tf-icons bx bx-bolt-circle"></i>
-                <div data-i18n="Layouts">Log Activity</div>
-              </a>
-
-              <ul class="menu-sub">
-                <li class="menu-item">
-                  <a href="/admin/log-activity" class="menu-link">
-                    <div data-i18n="Without menu">View Post</div>
-                  </a>
                 </li>
-              </ul>
-            </li>
 
-          </ul>
+                {{-- Logo --}}
+                <li class="menu-item {{ Request::is('admin/list-logo') || Request::is('admin/add-logo') ? 'active open' : '' }}">
+                    <a href="javascript:void(0);" class="menu-link menu-toggle">
+                        <i class="menu-icon tf-icons bx bx-image"></i>
+                        <div>Logo</div>
+                    </a>
+                    <ul class="menu-sub">
+                        <li class="menu-item {{ Request::is('admin/list-logo') ? 'active' : '' }}">
+                            <a href="/admin/list-logo" class="menu-link"><div>View Logos</div></a>
+                        </li>
+                        <li class="menu-item {{ Request::is('admin/add-logo') ? 'active' : '' }}">
+                            <a href="/admin/add-logo" class="menu-link"><div>Add Logo</div></a>
+                        </li>
+                    </ul>
+                </li>
+
+                {{-- Products --}}
+                <li class="menu-item {{ Request::is('admin/list-product*') || Request::is('admin/add-product') ? 'active open' : '' }}">
+                    <a href="javascript:void(0);" class="menu-link menu-toggle">
+                        <i class="menu-icon tf-icons bx bx-shopping-bag"></i>
+                        <div>Products</div>
+                    </a>
+                    <ul class="menu-sub">
+                        <li class="menu-item {{ Request::is('admin/list-product*') ? 'active' : '' }}">
+                            <a href="/admin/list-product/" class="menu-link"><div>View Products</div></a>
+                        </li>
+                        <li class="menu-item {{ Request::is('admin/add-product') ? 'active' : '' }}">
+                            <a href="/admin/add-product" class="menu-link"><div>Add Product</div></a>
+                        </li>
+                    </ul>
+                </li>
+
+                {{-- Category --}}
+                <li class="menu-item {{ Request::is('admin/list-category') || Request::is('admin/add-category') ? 'active open' : '' }}">
+                    <a href="javascript:void(0);" class="menu-link menu-toggle">
+                        <i class="menu-icon tf-icons bx bx-category"></i>
+                        <div>Category</div>
+                    </a>
+                    <ul class="menu-sub">
+                        <li class="menu-item {{ Request::is('admin/list-category') ? 'active' : '' }}">
+                            <a href="/admin/list-category" class="menu-link"><div>View Categories</div></a>
+                        </li>
+                        <li class="menu-item {{ Request::is('admin/add-category') ? 'active' : '' }}">
+                            <a href="/admin/add-category" class="menu-link"><div>Add Category</div></a>
+                        </li>
+                    </ul>
+                </li>
+
+                {{-- Attribute --}}
+                <li class="menu-item {{ Request::is('admin/list-attribute') || Request::is('admin/add-attribute') ? 'active open' : '' }}">
+                    <a href="javascript:void(0);" class="menu-link menu-toggle">
+                        <i class="menu-icon tf-icons bx bx-tag"></i>
+                        <div>Attribute</div>
+                    </a>
+                    <ul class="menu-sub">
+                        <li class="menu-item {{ Request::is('admin/list-attribute') ? 'active' : '' }}">
+                            <a href="/admin/list-attribute" class="menu-link"><div>View Attributes</div></a>
+                        </li>
+                        <li class="menu-item {{ Request::is('admin/add-attribute') ? 'active' : '' }}">
+                            <a href="/admin/add-attribute" class="menu-link"><div>Add Attribute</div></a>
+                        </li>
+                    </ul>
+                </li>
+
+                {{-- Orders --}}
+                <li class="menu-item {{ Request::is('admin/view-order*') ? 'active open' : '' }}">
+                    <a href="javascript:void(0);" class="menu-link menu-toggle">
+                        <i class="menu-icon tf-icons bx bx-receipt"></i>
+                        <div>Orders</div>
+                        @if (isset($orderRow) && $orderRow > 0)
+                            <span class="order-badge">{{ $orderRow }}</span>
+                        @endif
+                    </a>
+                    <ul class="menu-sub">
+                        <li class="menu-item {{ Request::is('admin/view-order') ? 'active' : '' }}">
+                            <a href="/admin/view-order" class="menu-link"><div>View Orders</div></a>
+                        </li>
+                    </ul>
+                </li>
+
+                {{-- Log Activity --}}
+                <li class="menu-item {{ Request::is('admin/log-activity') ? 'active' : '' }}">
+                    <a href="javascript:void(0);" class="menu-link menu-toggle">
+                        <i class="menu-icon tf-icons bx bx-history"></i>
+                        <div>Log Activity</div>
+                    </a>
+                    <ul class="menu-sub">
+                        <li class="menu-item {{ Request::is('admin/log-activity') ? 'active' : '' }}">
+                            <a href="/admin/log-activity" class="menu-link"><div>View Logs</div></a>
+                        </li>
+                    </ul>
+                </li>
+
+            </ul>
         </aside>
-        <!-- / Menu -->
+        <!-- / Sidebar -->
 
-        <!-- Layout container -->
+        <!-- ── CONTENT ── -->
         <div class="layout-page">
-          <!-- Navbar -->
 
-          <nav
-            class="layout-navbar container-xxl navbar navbar-expand-xl navbar-detached align-items-center bg-navbar-theme"
-            id="layout-navbar"
-          >
-            <div class="layout-menu-toggle navbar-nav align-items-xl-center me-3 me-xl-0 d-xl-none">
-              <a class="nav-item nav-link px-0 me-xl-4" href="javascript:void(0)">
-                <i class="bx bx-menu bx-sm"></i>
-              </a>
-            </div>
+            <!-- Navbar -->
+            <nav class="layout-navbar container-xxl navbar navbar-expand-xl navbar-detached align-items-center bg-navbar-theme"
+                 id="layout-navbar">
 
-            <div class="navbar-nav-right d-flex align-items-center" id="navbar-collapse">
+                <div class="layout-menu-toggle navbar-nav align-items-xl-center me-3 me-xl-0 d-xl-none">
+                    <a class="nav-item nav-link px-0 me-xl-4" href="javascript:void(0)">
+                        <i class="bx bx-menu bx-sm"></i>
+                    </a>
+                </div>
 
-              <!-- Search -->
-              <div class="navbar-nav align-items-center">
-                <h4 class="page-main-title m-0 fw-bold">
-                  @yield('page-main-title')
-                </h4>
-              </div>
-              <!-- /Search -->
+                <div class="navbar-nav-right d-flex align-items-center" id="navbar-collapse">
 
-              <ul class="navbar-nav flex-row align-items-center ms-auto">
-                <!-- User -->
-                <li class="nav-item navbar-dropdown dropdown-user dropdown">
-                  <a class="nav-link dropdown-toggle hide-arrow" href="javascript:void(0);" data-bs-toggle="dropdown">
-                    <div class="avatar avatar-online">
-                      <img src="/uploads/{{ Auth::user()->profile }}" width="150" height="150" alt class=" rounded-circle" style="object-fit: cover;" />
+                    {{-- Page title --}}
+                    <div class="navbar-nav align-items-center">
+                        <h4 class="page-main-title m-0">
+                            @yield('page-main-title')
+                        </h4>
                     </div>
-                  </a>
-                  <ul class="dropdown-menu dropdown-menu-end">
-                    <li>
-                      <a class="dropdown-item" href="#">
-                        <div class="d-flex">
-                          <div class="flex-shrink-0 me-3">
-                            <div class="avatar avatar-online">
-                              <img src="/uploads/{{ Auth::user()->profile }}" alt class="w-px-40 h-auto rounded-circle" />
-                            </div>
-                          </div>
-                          <div class="flex-grow-1">
-                            {{-- <span class="fw-semibold d-block">{{ Auth::user()->name }}</span> --}}
-                            <small class="text-muted">Admin</small>
-                          </div>
-                        </div>
-                      </a>
-                    </li>
-                    <li>
-                      <div class="dropdown-divider"></div>
-                    </li>
-                    <li>
-                      <a class="dropdown-item" href="/admin/signout">
-                        <i class="bx bx-power-off me-2"></i>
-                        <span class="align-middle">Log Out</span>
-                      </a>
-                    </li>
-                  </ul>
-                </li>
-                <!--/ User -->
-              </ul>
-            </div>
-          </nav>
 
-          <!-- / Navbar -->
+                    <ul class="navbar-nav flex-row align-items-center ms-auto gap-2">
 
-          @yield('content')
+                        {{-- User dropdown --}}
+                        <li class="nav-item navbar-dropdown dropdown-user dropdown">
+                            <a class="nav-link dropdown-toggle hide-arrow d-flex align-items-center gap-2"
+                               href="javascript:void(0);" data-bs-toggle="dropdown">
+                                <div class="avatar avatar-online">
+                                    @if (Auth::user()->profile)
+                                        <img src="/uploads/{{ Auth::user()->profile }}" alt="Profile">
+                                    @else
+                                        <div style="width:38px;height:38px;border-radius:50%;background:#222;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:800;font-size:1rem;">
+                                            {{ strtoupper(substr(Auth::user()->name, 0, 1)) }}
+                                        </div>
+                                    @endif
+                                </div>
+                                <span class="d-none d-md-block fw-600" style="font-size:0.85rem;color:#333;font-weight:600;">
+                                    {{ Auth::user()->name }}
+                                </span>
+                            </a>
+
+                            <ul class="dropdown-menu dropdown-menu-end">
+                                <li>
+                                    <div class="dropdown-item">
+                                        <div class="d-flex align-items-center gap-2">
+                                            @if (Auth::user()->profile)
+                                                <img src="/uploads/{{ Auth::user()->profile }}" alt="Profile"
+                                                     style="width:36px;height:36px;border-radius:50%;object-fit:cover;">
+                                            @endif
+                                            <div>
+                                                <div style="font-weight:700;font-size:0.88rem;color:#222;">{{ Auth::user()->name }}</div>
+                                                <div style="font-size:0.75rem;color:#aaa;">Administrator</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </li>
+                                <li><div class="dropdown-divider"></div></li>
+                                <li>
+                                    <a class="dropdown-item text-danger" href="/admin/signout">
+                                        <i class="bx bx-power-off me-2"></i> Log Out
+                                    </a>
+                                </li>
+                            </ul>
+                        </li>
+
+                    </ul>
+                </div>
+            </nav>
+            <!-- / Navbar -->
+
+            @yield('content')
 
         </div>
-      </div>
+        <!-- / Content -->
 
-      <!-- Overlay -->
-      <div class="layout-overlay layout-menu-toggle"></div>
     </div>
-    <!-- / Layout wrapper -->
 
-    <!-- Core JS -->
-    <script src="{{url('backend/vendor/js/bootstrap.js')}}"></script>
-    <script src="{{url('backend/vendor/libs/perfect-scrollbar/perfect-scrollbar.js')}}"></script>
+    <div class="layout-overlay layout-menu-toggle"></div>
+</div>
 
-    <script src="{{url('backend/vendor/js/menu.js')}}"></script>
-    <!-- Main JS -->
-    <script src="{{url('backend/js/main.js')}}"></script>
-    <script src="{{url('backend/js/theme.js')}}"></script>
+<!-- Core JS -->
+<script src="{{ url('backend/vendor/js/bootstrap.js') }}"></script>
+<script src="{{ url('backend/vendor/libs/perfect-scrollbar/perfect-scrollbar.js') }}"></script>
+<script src="{{ url('backend/vendor/js/menu.js') }}"></script>
+<script src="{{ url('backend/js/main.js') }}"></script>
+<script src="{{ url('backend/js/theme.js') }}"></script>
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+<script src="{{ url('backend/js/form-basic-inputs.js') }}"></script>
 
-    {{-- select2 --}}
-    <script src="{{url('https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js')}}"></script>
+@yield('scripts')
 
-    <!-- Page JS -->
-    <script src="{{url('backend/js/form-basic-inputs.js')}}"></script>
-
-    <!-- Place this tag in your head or just before your close body tag. -->
-    <script async defer src="{{url('https://buttons.github.io/buttons.js')}}"></script>
-  </body>
+</body>
 </html>
