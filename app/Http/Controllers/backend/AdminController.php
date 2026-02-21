@@ -10,7 +10,38 @@ use Illuminate\Support\Facades\DB;
 class AdminController extends Controller
 {
     public function index() {
-        return view('backend.master');
+        $totalOrders    = DB::table('order')->count();
+    $totalProducts  = DB::table('product')->count();
+    $totalRevenue   = DB::table('order')->where('status', '!=', 'cancel')->sum('total_amount');
+    $pendingOrders  = DB::table('order')->where('status', 'pending')->count();
+
+    // Recent 8 orders with user name
+    $recentOrders = DB::table('order')
+        ->join('users', 'order.user_id', '=', 'users.id')
+        ->select('order.*', 'users.name')
+        ->orderBy('order.created_at', 'desc')
+        ->limit(8)
+        ->get();
+
+    // Recent 6 products
+    $recentProducts = DB::table('product')
+        ->orderBy('created_at', 'desc')
+        ->limit(6)
+        ->get();
+
+    // Order count badge for sidebar
+    $orderRow = DB::table('order')->where('status', 'pending')->count();
+
+    return view('backend.dashboard', compact(
+        'totalOrders',
+        'totalProducts',
+        'totalRevenue',
+        'pendingOrders',
+        'recentOrders',
+        'recentProducts',
+        'orderRow'
+    ));
+        // return view('backend.master');
     }
 
     public function AddPost() {
