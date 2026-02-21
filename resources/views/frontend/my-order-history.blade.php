@@ -19,7 +19,7 @@
         margin-bottom: 1.5rem;
     }
 
-    /* ── Order info card ── */
+    /* ── Info card ── */
     .info-card {
         background: #fff;
         border-radius: 6px;
@@ -38,12 +38,13 @@
     }
 
     .info-card .info-value {
-        font-size: 0.9rem;
+        font-size: 0.88rem;
         font-weight: 600;
         color: #222;
+        word-break: break-word;
     }
 
-    /* Status badge */
+    /* ── Status badge ── */
     .status-badge {
         display: inline-block;
         padding: 4px 12px;
@@ -125,7 +126,7 @@
 
     .items-table .price { font-weight: 700; color: #222; }
 
-    /* Hide cols on tablet */
+    /* Hide on tablet */
     @media (min-width: 768px) and (max-width: 991px) {
         .items-table th.hide-md,
         .items-table td.hide-md { display: none; }
@@ -143,18 +144,21 @@
     .item-mobile-card:last-child { border-bottom: none; }
 
     .item-mobile-card img {
-        width: 60px;
-        height: 60px;
+        width: 56px;
+        height: 56px;
         object-fit: contain;
         border-radius: 4px;
         background: #f8f8f8;
         flex-shrink: 0;
     }
 
-    .item-mobile-card .item-info { flex: 1; min-width: 0; }
+    .item-mobile-card .item-info {
+        flex: 1;
+        min-width: 0;
+    }
 
     .item-mobile-card .item-name {
-        font-size: 0.88rem;
+        font-size: 0.85rem;
         font-weight: 700;
         color: #222;
         white-space: nowrap;
@@ -163,19 +167,20 @@
     }
 
     .item-mobile-card .item-meta {
-        font-size: 0.78rem;
+        font-size: 0.75rem;
         color: #999;
         margin-top: 3px;
     }
 
     .item-mobile-card .item-price {
-        font-size: 0.9rem;
+        font-size: 0.88rem;
         font-weight: 700;
         color: #222;
         white-space: nowrap;
+        flex-shrink: 0;
     }
 
-    /* Show/hide per breakpoint */
+    /* ── Show/hide by breakpoint ── */
     .desktop-table { display: none; }
     .mobile-items  { display: block; }
 
@@ -184,10 +189,20 @@
         .mobile-items  { display: none; }
     }
 
-    /* ── Cancel button ── */
+    /* ── Action buttons ── */
+    .actions-bar {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 0.75rem;
+    }
+
     .btn-cancel {
-        display: inline-block;
-        padding: 0.7rem 1.75rem;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 0.7rem 1.5rem;
         background: #e74c3c;
         color: #fff;
         font-weight: 700;
@@ -195,15 +210,18 @@
         letter-spacing: 0.06em;
         text-transform: uppercase;
         border-radius: 4px;
-        text-decoration: none;
+        cursor: pointer;
         transition: background 0.2s;
+        border: none;
     }
 
     .btn-cancel:hover { background: #c0392b; color: #fff; }
 
     .btn-back {
-        display: inline-block;
-        padding: 0.7rem 1.75rem;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 0.7rem 1.5rem;
         background: #222;
         color: #fff;
         font-weight: 700;
@@ -216,6 +234,58 @@
     }
 
     .btn-back:hover { background: #444; color: #fff; }
+
+    /* Full width buttons on mobile */
+    @media (max-width: 575px) {
+        .actions-bar { flex-direction: column; }
+        .btn-back,
+        .btn-cancel { width: 100%; justify-content: center; }
+    }
+
+    /* ── Alertify overrides ── */
+    .ajs-header {
+        font-weight: 800 !important;
+        font-size: 1rem !important;
+        color: #222 !important;
+    }
+
+    .ajs-body .ajs-content {
+        font-size: 0.88rem !important;
+        color: #555 !important;
+        line-height: 1.5 !important;
+    }
+
+    .ajs-footer .ajs-button.ajs-ok {
+        background: #e74c3c !important;
+        color: #fff !important;
+        font-weight: 700 !important;
+        border-radius: 4px !important;
+        text-transform: uppercase !important;
+        font-size: 0.8rem !important;
+        letter-spacing: 0.04em !important;
+        border: none !important;
+        padding: 8px 16px !important;
+    }
+
+    .ajs-footer .ajs-button.ajs-cancel {
+        background: #f0f0f0 !important;
+        color: #333 !important;
+        font-weight: 700 !important;
+        border-radius: 4px !important;
+        text-transform: uppercase !important;
+        font-size: 0.8rem !important;
+        letter-spacing: 0.04em !important;
+        border: none !important;
+        padding: 8px 16px !important;
+    }
+
+    .ajs-footer .ajs-button.ajs-ok:hover     { background: #c0392b !important; }
+    .ajs-footer .ajs-button.ajs-cancel:hover { background: #ddd !important; }
+    .ajs-dialog { border-radius: 8px !important; overflow: hidden !important; }
+
+    @media (max-width: 575px) {
+        .ajs-dialog { margin: 0 1rem !important; }
+    }
 </style>
 
 @php
@@ -243,11 +313,11 @@ function statusClass($status) {
             {{-- ── ORDER INFO ── --}}
             <div class="info-card">
                 <div class="row g-3">
-                    <div class="col-6 col-md-2">
+                    <div class="col-6 col-sm-4 col-md-2">
                         <div class="info-label">Order ID</div>
                         <div class="info-value">#{{ $order[0]->id }}</div>
                     </div>
-                    <div class="col-6 col-md-2">
+                    <div class="col-6 col-sm-4 col-md-2">
                         <div class="info-label">Status</div>
                         <div class="info-value">
                             <span class="status-badge {{ statusClass($order[0]->status) }}">
@@ -255,23 +325,23 @@ function statusClass($status) {
                             </span>
                         </div>
                     </div>
-                    <div class="col-6 col-md-2">
+                    <div class="col-6 col-sm-4 col-md-2">
                         <div class="info-label">Total</div>
                         <div class="info-value">{{ $order[0]->total_amount }} $</div>
                     </div>
-                    <div class="col-6 col-md-2">
+                    <div class="col-6 col-sm-4 col-md-2">
                         <div class="info-label">Phone</div>
                         <div class="info-value">{{ $order[0]->phone }}</div>
                     </div>
-                    <div class="col-12 col-md-4">
+                    <div class="col-12 col-sm-8 col-md-4">
                         <div class="info-label">Address</div>
                         <div class="info-value">{{ $order[0]->address }}</div>
                     </div>
-                    <div class="col-12 col-md-4">
+                    <div class="col-12 col-sm-6 col-md-4">
                         <div class="info-label">Date</div>
                         <div class="info-value">{{ \Carbon\Carbon::parse($order[0]->created_at)->format('d M Y, h:i A') }}</div>
                     </div>
-                    <div class="col-12 col-md-4">
+                    <div class="col-12 col-sm-6 col-md-8">
                         <div class="info-label">Transaction ID</div>
                         <div class="info-value">{{ $order[0]->transaction_id }}</div>
                     </div>
@@ -282,7 +352,7 @@ function statusClass($status) {
             <div class="items-card">
                 <div class="card-head">Order Items</div>
 
-                {{-- Desktop table --}}
+                {{-- Desktop / Tablet table --}}
                 <div class="desktop-table">
                     <table class="items-table">
                         <thead>
@@ -300,9 +370,7 @@ function statusClass($status) {
                                 <tr>
                                     <td class="hide-md">{{ $orderItemVal->id }}</td>
                                     <td>{{ $orderItemVal->name }}</td>
-                                    <td>
-                                        <img src="/uploads/{{ $orderItemVal->thumbnail }}" alt="{{ $orderItemVal->name }}">
-                                    </td>
+                                    <td><img src="/uploads/{{ $orderItemVal->thumbnail }}" alt="{{ $orderItemVal->name }}"></td>
                                     <td>{{ $orderItemVal->quantity }}</td>
                                     <td class="price">{{ $orderItemVal->price }} $</td>
                                     <td class="hide-md">{{ \Carbon\Carbon::parse($orderItemVal->created_at)->format('d M Y') }}</td>
@@ -319,30 +387,62 @@ function statusClass($status) {
                             <img src="/uploads/{{ $orderItemVal->thumbnail }}" alt="{{ $orderItemVal->name }}">
                             <div class="item-info">
                                 <div class="item-name">{{ $orderItemVal->name }}</div>
-                                <div class="item-meta">Qty: {{ $orderItemVal->quantity }} &nbsp;·&nbsp; {{ \Carbon\Carbon::parse($orderItemVal->created_at)->format('d M Y') }}</div>
+                                <div class="item-meta">
+                                    Qty: {{ $orderItemVal->quantity }}
+                                    &nbsp;·&nbsp;
+                                    {{ \Carbon\Carbon::parse($orderItemVal->created_at)->format('d M Y') }}
+                                </div>
                             </div>
                             <div class="item-price">{{ $orderItemVal->price }} $</div>
                         </div>
                     @endforeach
                 </div>
-
             </div>
 
             {{-- ── ACTIONS ── --}}
-            <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
+            <div class="actions-bar">
                 <a href="/my-order" class="btn-back">
-                    <i class="fa-solid fa-arrow-left me-1"></i> Back to Orders
+                    <i class="fa-solid fa-arrow-left"></i> Back to Orders
                 </a>
                 @if ($order[0]->status == 'pending')
-                    <a href="/cancel-order/{{ $orderItems[0]->order_id }}" class="btn-cancel"
-                       onclick="return confirm('Are you sure you want to cancel this order?')">
-                        <i class="fa-solid fa-xmark me-1"></i> Cancel Order
-                    </a>
+                    <button class="btn-cancel" id="cancelOrderBtn"
+                            data-url="/cancel-order/{{ $orderItems[0]->order_id }}">
+                        <i class="fa-solid fa-xmark"></i> Cancel Order
+                    </button>
                 @endif
             </div>
 
         </div>
     </section>
 </main>
+
+{{-- Alertify at bottom — after all HTML so DOM is ready --}}
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/alertifyjs@1.14.0/build/css/alertify.min.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/alertifyjs@1.14.0/build/css/themes/default.min.css">
+<script src="https://cdn.jsdelivr.net/npm/alertifyjs@1.14.0/build/alertify.min.js"></script>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        var btn = document.getElementById('cancelOrderBtn');
+        if (btn) {
+            btn.addEventListener('click', function () {
+                var url = this.getAttribute('data-url');
+                alertify.confirm(
+                    'Cancel Order',
+                    'Are you sure you want to cancel this order? This action cannot be undone.',
+                    function () {
+                        window.location.href = url;
+                    },
+                    function () {
+                        alertify.error('Order was not cancelled.');
+                    }
+                ).set({
+                    labels: { ok: 'Yes, Cancel Order', cancel: 'Keep Order' },
+                    defaultFocus: 'cancel'
+                });
+            });
+        }
+    });
+</script>
 
 @endsection

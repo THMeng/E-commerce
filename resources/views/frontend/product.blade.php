@@ -5,7 +5,6 @@
 @section('content')
 
 <style>
-    /* ── Page wrapper ── */
     .product-detail-section {
         padding: 2rem 0 3rem;
         background: #f5f5f5;
@@ -17,20 +16,27 @@
         border-radius: 6px;
         overflow: hidden;
         box-shadow: 0 1px 6px rgba(0,0,0,0.07);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 420px;
     }
 
     .product-image-wrap img {
         width: 100%;
         height: 420px;
-        object-fit: cover;
+        object-fit: contain;   /* ✅ show full image, no crop */
         display: block;
+        background: #fff;
     }
 
     @media (max-width: 767px) {
+        .product-image-wrap { min-height: 280px; }
         .product-image-wrap img { height: 280px; }
     }
 
     @media (min-width: 768px) and (max-width: 991px) {
+        .product-image-wrap { min-height: 340px; }
         .product-image-wrap img { height: 340px; }
     }
 
@@ -65,29 +71,15 @@
         margin-bottom: 0.25rem;
     }
 
-    .regular-price {
-        color: #aaa;
-        font-size: 0.95rem;
-    }
+    .regular-price { color: #aaa; font-size: 0.95rem; }
+    .sale-price    { color: #e74c3c; font-weight: 700; font-size: 1.2rem; }
+    .price         { color: #222; font-weight: 700; font-size: 1.2rem; }
 
-    .sale-price {
-        color: #e74c3c;
-        font-weight: 700;
-        font-size: 1.2rem;
-    }
+    /* ── Attributes ── */
+    .attr-group { margin-top: 1.1rem; }
 
-    .price {
-        color: #222;
-        font-weight: 700;
-        font-size: 1.2rem;
-    }
-
-    /* ── Attribute groups ── */
-    .attr-group {
-        margin-top: 1.1rem;
-    }
-
-    .attr-group .attr-label {
+    .attr-group .attr-label,
+    .description-box .attr-label {
         font-size: 0.75rem;
         font-weight: 700;
         letter-spacing: 0.08em;
@@ -103,7 +95,7 @@
         font-weight: 500;
     }
 
-    /* ── Add to cart form ── */
+    /* ── Add to cart ── */
     .add-to-cart-form {
         display: flex;
         align-items: flex-start;
@@ -143,9 +135,7 @@
         white-space: nowrap;
     }
 
-    .btn-add-cart:hover {
-        background: #e74c3c;
-    }
+    .btn-add-cart:hover { background: #e74c3c; }
 
     @media (max-width: 400px) {
         .add-to-cart-form input[type="number"] { width: 60px; }
@@ -159,16 +149,6 @@
         border-top: 1px solid #f0f0f0;
     }
 
-    .description-box .attr-label {
-        font-size: 0.75rem;
-        font-weight: 700;
-        letter-spacing: 0.08em;
-        text-transform: uppercase;
-        color: #888;
-        margin-bottom: 8px;
-        display: block;
-    }
-
     .description-box p {
         font-size: 0.9rem;
         color: #555;
@@ -176,10 +156,8 @@
         margin: 0;
     }
 
-    /* ── Divider ── */
-    .section-divider {
-        margin: 2.5rem 0 1.5rem;
-    }
+    /* ── Related section ── */
+    .section-divider { margin: 2.5rem 0 1.5rem; }
 
     .section-divider h3 {
         font-size: 1rem;
@@ -192,15 +170,12 @@
         margin: 0;
     }
 
-    /* ── Related products ── */
     .related-section {
         padding: 0 0 4rem;
         background: #f5f5f5;
     }
 
-    figure {
-        margin: 0;
-    }
+    figure { margin: 0; }
 
     figure .thumbnail {
         position: relative;
@@ -212,14 +187,13 @@
     figure .thumbnail img {
         width: 100%;
         height: 200px;
-        object-fit: cover;
+        object-fit: contain;   /* ✅ show full image, no crop */
         display: block;
+        background: #f8f8f8;
         transition: transform 0.3s ease;
     }
 
-    figure .thumbnail img:hover {
-        transform: scale(1.04);
-    }
+    figure .thumbnail img:hover { transform: scale(1.04); }
 
     @media (max-width: 575px) {
         figure .thumbnail img { height: 160px; }
@@ -231,8 +205,7 @@
 
     figure .thumbnail .status {
         position: absolute;
-        top: 8px;
-        left: 8px;
+        top: 8px; left: 8px;
         background: #e74c3c;
         color: #fff;
         font-size: 0.68rem;
@@ -244,9 +217,7 @@
         text-transform: uppercase;
     }
 
-    figure .detail {
-        padding: 0.5rem 0 0.25rem;
-    }
+    figure .detail { padding: 0.5rem 0 0.25rem; }
 
     figure .detail .title {
         font-size: 0.88rem;
@@ -275,7 +246,6 @@
                 <div class="col-12 col-md-7">
                     <div class="product-detail-card">
 
-                        {{-- Price --}}
                         <div class="price-list">
                             @if ($product[0]->sale_price > 0)
                                 <div class="regular-price"><s>US {{ $product[0]->regular_price }}</s></div>
@@ -285,22 +255,18 @@
                             @endif
                         </div>
 
-                        {{-- Name --}}
                         <h1 class="product-title">{{ $product[0]->name }}</h1>
 
-                        {{-- Color --}}
                         <div class="attr-group">
                             <span class="attr-label">Color Available</span>
                             <div class="attr-value">{{ $product[0]->attribute_color }}</div>
                         </div>
 
-                        {{-- Size --}}
                         <div class="attr-group">
                             <span class="attr-label">Size Available</span>
                             <div class="attr-value">{{ $product[0]->attribute_size }}</div>
                         </div>
 
-                        {{-- Add to cart --}}
                         <form method="post" action="/add-cart" class="add-to-cart-form">
                             @csrf
                             @php $userId = Auth::check() ? Auth::user()->id : 0; @endphp
@@ -312,7 +278,6 @@
                             </button>
                         </form>
 
-                        {{-- Description --}}
                         <div class="description-box">
                             <span class="attr-label">Description</span>
                             <p>{{ $product[0]->description }}</p>
@@ -342,7 +307,8 @@
                                     <div class="status">Promo</div>
                                 @endif
                                 <a href="/product/{{ $relatedProductValue->slug }}">
-                                    <img src="/uploads/{{ $relatedProductValue->thumbnail }}" alt="{{ $relatedProductValue->name }}" loading="lazy">
+                                    <img src="/uploads/{{ $relatedProductValue->thumbnail }}"
+                                         alt="{{ $relatedProductValue->name }}" loading="lazy">
                                 </a>
                             </div>
                             <div class="detail">
