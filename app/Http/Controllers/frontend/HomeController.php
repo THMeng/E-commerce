@@ -442,7 +442,8 @@ public function CartItem()
 // new feature
 public function Profile()
 {
-    return view('frontend.profile');
+    $user = DB::table('users')->where('id', Auth::user()->id)->first();
+    return view('frontend.profile', ['user' => $user]);
 }
 
 public function UpdateProfile(Request $request)
@@ -456,7 +457,6 @@ public function UpdateProfile(Request $request)
         'name'       => $request->name,
         'email'      => $request->email,
         'updated_at' => date('Y-m-d H:i:s'),
-        // ✅ Do NOT update profile column here — handled by UpdatePhoto()
     ]);
 
     return redirect('/profile')->with('success', 'Profile updated successfully.');

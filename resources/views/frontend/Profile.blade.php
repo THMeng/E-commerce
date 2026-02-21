@@ -1,26 +1,6 @@
 @extends('frontend.layout')
 @section('title')
     My Profile
-
-<script>
-document.getElementById('avatarInput').addEventListener('change', function () {
-    const file = this.files[0];
-    if (!file) return;
-
-    const reader = new FileReader();
-    reader.onload = function (e) {
-        const preview = document.getElementById('avatarPreview');
-        const initial = document.getElementById('avatarInitial');
-
-        preview.src = e.target.result;
-        preview.style.display = 'block';
-        if (initial) initial.style.display = 'none';
-
-        document.getElementById('avatarSaveBtn').classList.remove('d-none');
-    };
-    reader.readAsDataURL(file);
-});
-</script>
 @endsection
 @section('content')
 
@@ -39,7 +19,6 @@ document.getElementById('avatarInput').addEventListener('change', function () {
         margin-bottom: 1.5rem;
     }
 
-    /* ── Avatar card ── */
     .avatar-card {
         background: #fff;
         border-radius: 6px;
@@ -51,8 +30,10 @@ document.getElementById('avatarInput').addEventListener('change', function () {
 
     .avatar-wrap {
         position: relative;
-        display: inline-block;
-        margin-bottom: 1rem;
+        width: 100px;
+        height: 100px;
+        cursor: pointer;
+        margin: 0 auto 1rem;
     }
 
     .avatar-wrap img,
@@ -75,6 +56,26 @@ document.getElementById('avatarInput').addEventListener('change', function () {
         font-weight: 700;
     }
 
+    .avatar-overlay {
+        position: absolute;
+        inset: 0;
+        border-radius: 50%;
+        background: rgba(0,0,0,0.5);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        opacity: 0;
+        transition: opacity 0.2s;
+        color: #fff;
+        font-size: 1.2rem;
+        gap: 4px;
+    }
+
+    .avatar-wrap:hover .avatar-overlay { opacity: 1; }
+
+    .avatar-overlay small { font-size: 0.55rem; letter-spacing: 0.05em; }
+
     .avatar-card .user-name {
         font-size: 1.05rem;
         font-weight: 800;
@@ -85,7 +86,7 @@ document.getElementById('avatarInput').addEventListener('change', function () {
     .avatar-card .user-email {
         font-size: 0.82rem;
         color: #aaa;
-        margin-bottom: 1rem;
+        margin-bottom: 0.5rem;
     }
 
     .avatar-card .user-since {
@@ -95,7 +96,6 @@ document.getElementById('avatarInput').addEventListener('change', function () {
         letter-spacing: 0.06em;
     }
 
-    /* ── Form card ── */
     .form-card {
         background: #fff;
         border-radius: 6px;
@@ -115,14 +115,9 @@ document.getElementById('avatarInput').addEventListener('change', function () {
         color: #888;
     }
 
-    .form-card .card-body-inner {
-        padding: 1.5rem;
-    }
+    .form-card .card-body-inner { padding: 1.5rem; }
 
-    /* ── Form fields ── */
-    .form-group-custom {
-        margin-bottom: 1.1rem;
-    }
+    .form-group-custom { margin-bottom: 1.1rem; }
 
     .form-group-custom label {
         display: block;
@@ -157,7 +152,6 @@ document.getElementById('avatarInput').addEventListener('change', function () {
         margin-top: 4px;
     }
 
-    /* ── Buttons ── */
     .btn-save {
         display: inline-block;
         padding: 0.75rem 2rem;
@@ -175,7 +169,6 @@ document.getElementById('avatarInput').addEventListener('change', function () {
 
     .btn-save:hover { background: #e74c3c; }
 
-    /* ── Alerts ── */
     .alert-custom {
         padding: 0.75rem 1rem;
         border-radius: 4px;
@@ -190,70 +183,6 @@ document.getElementById('avatarInput').addEventListener('change', function () {
     @media (max-width: 767px) {
         .form-card .card-body-inner { padding: 1.1rem; }
     }
-
-    /* ── Avatar upload ── */
-    .avatar-wrap {
-        position: relative;
-        width: 100px;
-        height: 100px;
-        cursor: pointer;
-        margin: 0 auto 1rem;
-    }
-
-    .avatar-wrap img,
-    .avatar-wrap .avatar-placeholder {
-        width: 100px;
-        height: 100px;
-        border-radius: 50%;
-        object-fit: cover;
-        border: 3px solid #f0f0f0;
-        display: block;
-    }
-
-    .avatar-wrap .avatar-placeholder {
-        background: #222;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 2.5rem;
-        color: #fff;
-        font-weight: 700;
-    }
-
-    .avatar-overlay {
-        position: absolute;
-        inset: 0;
-        border-radius: 50%;
-        background: rgba(0,0,0,0.45);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        opacity: 0;
-        transition: opacity 0.2s;
-        color: #fff;
-        font-size: 1.3rem;
-    }
-
-    .avatar-wrap:hover .avatar-overlay { opacity: 1; }
-
-    .btn-upload-avatar {
-        display: inline-block;
-        margin-top: 0.75rem;
-        padding: 0.5rem 1.25rem;
-        background: #222;
-        color: #fff;
-        font-size: 0.78rem;
-        font-weight: 700;
-        letter-spacing: 0.05em;
-        text-transform: uppercase;
-        border: none;
-        border-radius: 4px;
-        cursor: pointer;
-        transition: background 0.2s;
-    }
-
-    .btn-upload-avatar:hover { background: #e74c3c; }
-
 </style>
 
 <main>
@@ -284,34 +213,39 @@ document.getElementById('avatarInput').addEventListener('change', function () {
 
             <div class="row g-4 align-items-start">
 
+                {{-- ── Avatar ── --}}
                 <div class="col-12 col-md-4 col-lg-3">
                     <div class="avatar-card">
+
                         <form action="/profile/update-photo" method="post" enctype="multipart/form-data" id="avatarForm">
                             @csrf
                             <div class="avatar-wrap mx-auto" onclick="document.getElementById('avatarInput').click()" title="Click to change photo">
-                                @if (Auth::user()->profile)
-                                    <img src="/uploads/{{ Auth::user()->profile }}" alt="Avatar" id="avatarPreview">
+                                @if ($user->profile && $user->profile != '')
+                                    <img src="/uploads/{{ $user->profile }}" alt="Profile">
                                 @else
                                     <div class="avatar-placeholder" id="avatarInitial">
-                                        {{ strtoupper(substr(Auth::user()->name ?? 'U', 0, 1)) }}
+                                        {{ strtoupper(substr($user->name ?? 'U', 0, 1)) }}
                                     </div>
-                                    <img src="" alt="Avatar" id="avatarPreview" style="display:none;">
                                 @endif
                                 <div class="avatar-overlay">
                                     <i class="fa-solid fa-camera"></i>
+                                    <small>Change</small>
                                 </div>
                             </div>
-                            <input type="file" id="avatarInput" name="avatar" accept="image/*" style="display:none;">
-                            <button type="submit" class="btn-upload-avatar d-none" id="avatarSaveBtn">
-                                <i class="fa-solid fa-floppy-disk me-1"></i> Save Photo
-                            </button>
+                            {{-- Hidden file input: auto-submits form on change --}}
+                            <input type="file" id="avatarInput" name="avatar" accept="image/*" style="display:none;"
+                                   onchange="document.getElementById('avatarForm').submit()">
                         </form>
-                        <div class="user-name mt-2">{{ Auth::user()->name }}</div>
-                        <div class="user-email">{{ Auth::user()->email }}</div>
-                        <div class="user-since">Member since {{ \Carbon\Carbon::parse(Auth::user()->created_at)->format('M Y') }}</div>
+
+                        <div class="user-name mt-2">{{ $user->name }}</div>
+                        <div class="user-email">{{ $user->email }}</div>
+                        @if ($user->created_at)
+                            <div class="user-since">Member since {{ \Carbon\Carbon::parse($user->created_at)->format('M Y') }}</div>
+                        @endif
                     </div>
                 </div>
 
+                {{-- ── Forms ── --}}
                 <div class="col-12 col-md-8 col-lg-9">
 
                     {{-- Personal Info --}}
@@ -326,15 +260,15 @@ document.getElementById('avatarInput').addEventListener('change', function () {
                                         <div class="form-group-custom">
                                             <label>Name</label>
                                             <input type="text" name="name" class="form-control"
-                                                   value="{{ old('name', Auth::user()->name) }}"
-                                                   placeholder="Your full name" required>
+                                                   value="{{ old('name', $user->name) }}"
+                                                   placeholder="Your name" required>
                                         </div>
                                     </div>
                                     <div class="col-12 col-sm-6">
                                         <div class="form-group-custom">
                                             <label>Email Address</label>
                                             <input type="email" name="email" class="form-control"
-                                                   value="{{ old('email', Auth::user()->email) }}"
+                                                   value="{{ old('email', $user->email) }}"
                                                    placeholder="Your email" required>
                                         </div>
                                     </div>
@@ -346,6 +280,7 @@ document.getElementById('avatarInput').addEventListener('change', function () {
                         </div>
                     </div>
 
+                    {{-- Change Password --}}
                     <div class="form-card">
                         <div class="card-head">Change Password</div>
                         <div class="card-body-inner">
