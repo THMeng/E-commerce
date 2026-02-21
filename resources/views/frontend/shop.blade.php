@@ -5,14 +5,13 @@
 @section('content')
 
 <style>
-    /* ── Shop layout ── */
     .shop-section {
         padding: 2rem 0 4rem;
         background: #f5f5f5;
         min-height: 70vh;
     }
 
-    /* ── Filter toggle button (mobile only) ── */
+    /* ── Filter toggle (mobile) ── */
     .filter-toggle-btn {
         display: none;
         align-items: center;
@@ -34,19 +33,13 @@
         .filter-toggle-btn { display: flex; }
     }
 
-    /* ── Sidebar filter ── */
+    /* ── Sidebar ── */
     .filter-sidebar {
         background: #fff;
         border-radius: 6px;
         box-shadow: 0 1px 6px rgba(0,0,0,0.07);
         padding: 1.25rem;
-    }
-
-    /* Collapsible on mobile */
-    @media (max-width: 991px) {
-        .filter-sidebar {
-            margin-bottom: 1.5rem;
-        }
+        margin-bottom: 1.5rem;
     }
 
     .filter-sidebar h4.title {
@@ -76,17 +69,9 @@
         transition: color 0.15s, padding-left 0.15s;
     }
 
-    .filter-sidebar ul li a:hover {
-        color: #e74c3c;
-        padding-left: 6px;
-    }
+    .filter-sidebar ul li a:hover { color: #e74c3c; padding-left: 6px; }
+    .filter-sidebar ul li a.active { color: #e74c3c; font-weight: 700; }
 
-    .filter-sidebar ul li a.active {
-        color: #e74c3c;
-        font-weight: 700;
-    }
-
-    /* Price & Promotion filter links */
     .block-filter {
         display: flex;
         flex-wrap: wrap;
@@ -122,9 +107,7 @@
         padding: 1.25rem;
     }
 
-    figure {
-        margin: 0;
-    }
+    figure { margin: 0; }
 
     figure .thumbnail {
         position: relative;
@@ -138,26 +121,23 @@
         height: 210px;
         object-fit: contain;
         display: block;
-        transition: transform 0.3s ease;
         background: #f8f8f8;
+        transition: transform 0.3s ease;
     }
 
-    figure .thumbnail img:hover {
-        transform: scale(1.04);
-    }
+    figure .thumbnail img:hover { transform: scale(1.04); }
 
     @media (max-width: 575px) {
-        figure .thumbnail img { height: 170px; object-fit: contain; }
+        figure .thumbnail img { height: 170px; }
     }
 
     @media (min-width: 992px) {
-        figure .thumbnail img { height: 230px; object-fit: contain;
+        figure .thumbnail img { height: 230px; }
     }
 
     figure .thumbnail .status {
         position: absolute;
-        top: 8px;
-        left: 8px;
+        top: 8px; left: 8px;
         background: #e74c3c;
         color: #fff;
         font-size: 0.68rem;
@@ -169,9 +149,7 @@
         text-transform: uppercase;
     }
 
-    figure .detail {
-        padding: 0.5rem 0 0.25rem;
-    }
+    figure .detail { padding: 0.5rem 0 0.25rem; }
 
     figure .detail .title {
         font-size: 0.88rem;
@@ -181,36 +159,79 @@
         line-height: 1.3;
     }
 
+    /* ── Price ── */
+    .price-list { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+    .regular-price { color: #aaa; font-size: 0.82rem; }
+    .sale-price    { color: #e74c3c; font-weight: 700; font-size: 0.92rem; }
+    .price         { color: #222; font-weight: 700; font-size: 0.92rem; }
+
     /* ── Pagination ── */
-    .pagination {
-        list-style: none;
-        padding: 0;
-        margin: 1.5rem 0 0;
+    .shop-pagination {
         display: flex;
         flex-wrap: wrap;
         gap: 6px;
+        margin-top: 1.5rem;
+        padding: 0;
+        list-style: none;
+        align-items: center;
     }
 
-    .pagination li a {
+    .shop-pagination li a,
+    .shop-pagination li span {
         display: inline-flex;
         align-items: center;
         justify-content: center;
-        width: 34px;
-        height: 34px;
+        min-width: 36px;
+        height: 36px;
+        padding: 0 10px;
         font-size: 0.82rem;
         font-weight: 700;
         border: 1.5px solid #ddd;
-        border-radius: 4px;
+        border-radius: 6px;
         color: #444;
         text-decoration: none;
+        background: #fff;
         transition: all 0.15s;
+        white-space: nowrap;
     }
 
-    .pagination li a:hover,
-    .pagination li a.active {
+    .shop-pagination li a:hover {
         background: #222;
         color: #fff;
         border-color: #222;
+    }
+
+    .shop-pagination li.active a {
+        background: #222;
+        color: #fff;
+        border-color: #222;
+    }
+
+    .shop-pagination li.prev-next a {
+        min-width: 44px;
+        background: #f5f5f5;
+        color: #444;
+        border-color: #ddd;
+        font-size: 0.78rem;
+        letter-spacing: 0.04em;
+        text-transform: uppercase;
+    }
+
+    .shop-pagination li.prev-next a:hover {
+        background: #222;
+        color: #fff;
+        border-color: #222;
+    }
+
+    /* On very small screens shrink pagination a bit */
+    @media (max-width: 360px) {
+        .shop-pagination li a,
+        .shop-pagination li span {
+            min-width: 30px;
+            height: 30px;
+            font-size: 0.75rem;
+            padding: 0 6px;
+        }
     }
 </style>
 
@@ -219,14 +240,14 @@
         <div class="container">
 
             {{-- Mobile filter toggle --}}
-            <button class="filter-toggle-btn" type="button" data-bs-toggle="collapse" data-bs-target="#filterCollapse" aria-expanded="false">
+            <button class="filter-toggle-btn" type="button"
+                    data-bs-toggle="collapse" data-bs-target="#filterCollapse" aria-expanded="false">
                 <i class="fa-solid fa-sliders"></i> Filter
             </button>
 
             <div class="row g-3 g-lg-4">
 
-                {{-- ── FILTER SIDEBAR ── --}}
-                {{-- Mobile: collapsible; Desktop: always visible --}}
+                {{-- ── SIDEBAR ── --}}
                 <div class="col-12 col-lg-3 order-lg-2">
                     <div class="collapse d-lg-block" id="filterCollapse">
                         <div class="filter-sidebar">
@@ -234,7 +255,10 @@
                             <h4 class="title">Category</h4>
                             <ul>
                                 <li>
-                                    <a href="/shop" class="{{ !Request::get('category') && !Request::get('promotion') && !Request::get('price') ? 'active' : '' }}">All</a>
+                                    <a href="/shop"
+                                       class="{{ !Request::get('category') && !Request::get('promotion') && !Request::get('price') ? 'active' : '' }}">
+                                        All
+                                    </a>
                                 </li>
                                 @foreach ($category as $cateVal)
                                     <li>
@@ -254,7 +278,7 @@
 
                             <h4 class="title mt-4">Promotion</h4>
                             <div class="block-filter mt-2">
-                                <a href="/shop?promotion=true" class="{{ Request::get('promotion') ? 'active' : '' }}">Promotion</a>
+                                <a href="/shop?promotion=true" class="{{ Request::get('promotion') ? 'active' : '' }}">On Sale</a>
                             </div>
 
                         </div>
@@ -266,7 +290,7 @@
                     <div class="product-grid">
                         <div class="row g-3">
 
-                            @foreach ($product as $productVal)
+                            @forelse ($product as $productVal)
                                 <div class="col-6 col-sm-6 col-md-4 col-lg-4">
                                     <figure>
                                         <div class="thumbnail">
@@ -274,7 +298,8 @@
                                                 <div class="status">Promo</div>
                                             @endif
                                             <a href="/product/{{ $productVal->slug }}">
-                                                <img src="/uploads/{{ $productVal->thumbnail }}" alt="{{ $productVal->name }}" loading="lazy">
+                                                <img src="/uploads/{{ $productVal->thumbnail }}"
+                                                     alt="{{ $productVal->name }}" loading="lazy">
                                             </a>
                                         </div>
                                         <div class="detail">
@@ -290,26 +315,92 @@
                                         </div>
                                     </figure>
                                 </div>
-                            @endforeach
+                            @empty
+                                <div class="col-12 text-center py-5" style="color:#ccc;">
+                                    <i class="fa-solid fa-box-open" style="font-size:2.5rem;margin-bottom:0.75rem;display:block;"></i>
+                                    No products found.
+                                </div>
+                            @endforelse
 
-                            {{-- Pagination --}}
+                            {{-- ── PAGINATION ── --}}
+                            @if ($totalPage > 1)
                             <div class="col-12">
-                                <ul class="pagination">
-                                    @if (Request::get('category'))
-                                        @for ($i = 1; $i <= $totalPage; $i++)
-                                            <li><a href="/shop?category={{ Request::get('category') }}&page={{ $i }}" class="{{ Request::get('page') == $i ? 'active' : '' }}">{{ $i }}</a></li>
-                                        @endfor
-                                    @elseif (Request::get('promotion'))
-                                        @for ($i = 1; $i <= $totalPage; $i++)
-                                            <li><a href="/shop?promotion={{ Request::get('promotion') }}&page={{ $i }}" class="{{ Request::get('page') == $i ? 'active' : '' }}">{{ $i }}</a></li>
-                                        @endfor
-                                    @else
-                                        @for ($i = 1; $i <= $totalPage; $i++)
-                                            <li><a href="/shop?page={{ $i }}" class="{{ Request::get('page') == $i ? 'active' : '' }}">{{ $i }}</a></li>
-                                        @endfor
+                                @php
+                                    $currentPage = (int) Request::get('page', 1);
+                                    $category    = Request::get('category');
+                                    $promotion   = Request::get('promotion');
+                                    $price       = Request::get('price');
+
+                                    function shopUrl($page, $category, $promotion, $price) {
+                                        $params = ['page' => $page];
+                                        if ($category)  $params['category']  = $category;
+                                        if ($promotion) $params['promotion'] = $promotion;
+                                        if ($price)     $params['price']     = $price;
+                                        return '/shop?' . http_build_query($params);
+                                    }
+
+                                    $start = max(1, $currentPage - 2);
+                                    $end   = min($totalPage, $currentPage + 2);
+                                @endphp
+
+                                <ul class="shop-pagination">
+
+                                    {{-- Prev --}}
+                                    <li class="prev-next {{ $currentPage <= 1 ? 'disabled' : '' }}">
+                                        @if ($currentPage > 1)
+                                            <a href="{{ shopUrl($currentPage - 1, $category, $promotion, $price) }}">
+                                                <i class="fa-solid fa-chevron-left"></i> Prev
+                                            </a>
+                                        @else
+                                            <span style="opacity:0.4;cursor:default;">
+                                                <i class="fa-solid fa-chevron-left"></i> Prev
+                                            </span>
+                                        @endif
+                                    </li>
+
+                                    {{-- First page + ellipsis --}}
+                                    @if ($start > 1)
+                                        <li class="{{ $currentPage == 1 ? 'active' : '' }}">
+                                            <a href="{{ shopUrl(1, $category, $promotion, $price) }}">1</a>
+                                        </li>
+                                        @if ($start > 2)
+                                            <li><span style="border:none;background:none;color:#aaa;">…</span></li>
+                                        @endif
                                     @endif
+
+                                    {{-- Page range --}}
+                                    @for ($i = $start; $i <= $end; $i++)
+                                        <li class="{{ $currentPage == $i ? 'active' : '' }}">
+                                            <a href="{{ shopUrl($i, $category, $promotion, $price) }}">{{ $i }}</a>
+                                        </li>
+                                    @endfor
+
+                                    {{-- Last page + ellipsis --}}
+                                    @if ($end < $totalPage)
+                                        @if ($end < $totalPage - 1)
+                                            <li><span style="border:none;background:none;color:#aaa;">…</span></li>
+                                        @endif
+                                        <li class="{{ $currentPage == $totalPage ? 'active' : '' }}">
+                                            <a href="{{ shopUrl($totalPage, $category, $promotion, $price) }}">{{ $totalPage }}</a>
+                                        </li>
+                                    @endif
+
+                                    {{-- Next --}}
+                                    <li class="prev-next {{ $currentPage >= $totalPage ? 'disabled' : '' }}">
+                                        @if ($currentPage < $totalPage)
+                                            <a href="{{ shopUrl($currentPage + 1, $category, $promotion, $price) }}">
+                                                Next <i class="fa-solid fa-chevron-right"></i>
+                                            </a>
+                                        @else
+                                            <span style="opacity:0.4;cursor:default;">
+                                                Next <i class="fa-solid fa-chevron-right"></i>
+                                            </span>
+                                        @endif
+                                    </li>
+
                                 </ul>
                             </div>
+                            @endif
 
                         </div>
                     </div>

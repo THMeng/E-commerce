@@ -355,6 +355,35 @@
             margin-bottom: 6px !important;
         }
 
+        /* ── Mode switcher ── */
+        .mode-switcher {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 0.45rem 0.9rem;
+            background: #f5f5f5;
+            border: 1.5px solid #e0e0e0;
+            border-radius: 6px;
+            font-size: 0.8rem;
+            font-weight: 700;
+            color: #444;
+            text-decoration: none;
+            transition: all 0.15s;
+            white-space: nowrap;
+        }
+
+        .mode-switcher:hover {
+            background: #222;
+            color: #fff;
+            border-color: #222;
+        }
+
+        .mode-switcher i { font-size: 1rem; }
+
+        @media (max-width: 400px) {
+            .mode-switcher { padding: 0.4rem 0.6rem; }
+        }
+
         /* ── Mobile responsive ── */
         @media (max-width: 991px) {
             .content-wrapper { padding: 1rem !important; }
@@ -526,6 +555,14 @@
                     </div>
 
                     <ul class="navbar-nav flex-row align-items-center ms-auto gap-2">
+
+                        {{-- ── Admin/Client mode switcher ── --}}
+                        <li class="nav-item">
+                            <a href="/" target="_blank" class="mode-switcher" title="View client site">
+                                <i class="bx bx-store-alt"></i>
+                                <span class="d-none d-md-inline">Client Site</span>
+                            </a>
+                        </li>
 
                         {{-- User dropdown --}}
                         <li class="nav-item navbar-dropdown dropdown-user dropdown">

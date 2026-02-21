@@ -17,23 +17,26 @@ class UserController extends Controller
     }
 
     public function SigninSubmit(Request $request)
-    {
-        $name_email = $request->name_email;
-        $password = $request->password;
-        // $remember = $request->remember!='' ?$request->remember : 'false' ;
-        
-        
-        
-        if(Auth::attempt(['name'=>$name_email,'password'=>$password],$request->remember)){
+{
+    $name_email = $request->name_email;
+    $password   = $request->password;
+
+    if (Auth::attempt(['name' => $name_email, 'password' => $password], $request->remember)) {
+        if (Auth::user()->is_admin) {
             return redirect('/admin');
         }
-        elseif(Auth::attempt(['email'=>$name_email,'password'=>$password])){
-            return redirect('/admin');
-        }
-        else{
-            return redirect('/signin')->with('message_fail','Incorrect Name,Email Or Password');
-        }
+        return redirect('/');
     }
+
+    if (Auth::attempt(['email' => $name_email, 'password' => $password], $request->remember)) {
+        if (Auth::user()->is_admin) {
+            return redirect('/admin');
+        }
+        return redirect('/');
+    }
+
+    return redirect('/signin')->with('message_fail', 'Incorrect Name, Email or Password');
+}
 
     // Sign Up
     public function Signup() {
