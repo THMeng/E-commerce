@@ -25,7 +25,7 @@
     .product-image-wrap img {
         width: 100%;
         height: 420px;
-        object-fit: contain;   /* ✅ show full image, no crop */
+        object-fit: contain;
         display: block;
         background: #fff;
     }
@@ -137,9 +137,37 @@
 
     .btn-add-cart:hover { background: #e74c3c; }
 
+    /* ── Favourite button (detail page — inline beside title) ── */
+    .btn-fav-detail {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        background: #f5f5f5;
+        border: 1.5px solid #ddd;
+        border-radius: 4px;
+        padding: 0 14px;
+        height: 44px;
+        font-size: 0.85rem;
+        font-weight: 700;
+        color: #555;
+        cursor: pointer;
+        transition: all 0.15s;
+        white-space: nowrap;
+    }
+
+    .btn-fav-detail:hover,
+    .btn-fav-detail.active {
+        background: #fff0f0;
+        border-color: #e74c3c;
+        color: #e74c3c;
+    }
+
+    .btn-fav-detail i { font-size: 1rem; }
+
     @media (max-width: 400px) {
         .add-to-cart-form input[type="number"] { width: 60px; }
         .btn-add-cart { padding: 0 1rem; font-size: 0.8rem; }
+        .btn-fav-detail { padding: 0 10px; font-size: 0.8rem; }
     }
 
     /* ── Description ── */
@@ -187,7 +215,7 @@
     figure .thumbnail img {
         width: 100%;
         height: 200px;
-        object-fit: contain;   /* ✅ show full image, no crop */
+        object-fit: contain;
         display: block;
         background: #f8f8f8;
         transition: transform 0.3s ease;
@@ -216,6 +244,36 @@
         z-index: 1;
         text-transform: uppercase;
     }
+
+    /* ── Heart button (related product cards) ── */
+    .fav-heart-btn {
+        position: absolute;
+        top: 8px; right: 8px;
+        z-index: 2;
+        background: rgba(255,255,255,0.85);
+        border: none;
+        border-radius: 50%;
+        width: 32px;
+        height: 32px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: background 0.15s, transform 0.15s;
+        padding: 0;
+        line-height: 1;
+    }
+
+    .fav-heart-btn:hover { background: #fff; transform: scale(1.12); }
+
+    .fav-heart-btn i {
+        font-size: 0.95rem;
+        color: #bbb;
+        transition: color 0.15s;
+    }
+
+    .fav-heart-btn.active i,
+    .fav-heart-btn:hover i { color: #e74c3c; }
 
     figure .detail { padding: 0.5rem 0 0.25rem; }
 
@@ -267,14 +325,30 @@
                             <div class="attr-value">{{ $product[0]->attribute_size }}</div>
                         </div>
 
+                        {{-- ── Add to cart + Favourite ── --}}
+                        @php
+                            $userId        = Auth::check() ? Auth::user()->id : 0;
+                            $isDetailFav   = in_array($product[0]->id, $favIds ?? []);
+                        @endphp
+
                         <form method="post" action="/add-cart" class="add-to-cart-form">
                             @csrf
-                            @php $userId = Auth::check() ? Auth::user()->id : 0; @endphp
                             <input type="hidden" value="{{ $product[0]->id }}" name="proId">
                             <input type="hidden" value="{{ $userId }}" name="userId">
                             <input type="number" class="form-control" value="1" min="1" name="qty">
                             <button type="submit" class="btn-add-cart">
                                 <i class="fa-solid fa-cart-plus me-1"></i> Add to Cart
+                            </button>
+
+                            {{-- ♥ Favourite button (inline with cart) --}}
+                            <button type="button"
+                                class="btn-fav-detail {{ $isDetailFav ? 'active' : '' }}"
+                                data-product="{{ $product[0]->id }}"
+                                data-auth="{{ Auth::check() ? '1' : '0' }}"
+                                onclick="toggleFav(this)"
+                                title="{{ $isDetailFav ? 'Remove from favorites' : 'Add to favorites' }}">
+                                <i class="{{ $isDetailFav ? 'fa-solid' : 'fa-regular' }} fa-heart"></i>
+                                {{ $isDetailFav ? 'Saved' : 'Favorite' }}
                             </button>
                         </form>
 
@@ -300,12 +374,24 @@
 
             <div class="row g-3">
                 @foreach ($relatedProduct as $relatedProductValue)
+                    @php $isRelFav = in_array($relatedProductValue->id, $favIds ?? []); @endphp
                     <div class="col-6 col-sm-6 col-md-4 col-lg-3">
                         <figure>
                             <div class="thumbnail">
                                 @if ($relatedProductValue->sale_price > 0)
                                     <div class="status">Promo</div>
                                 @endif
+
+                                {{-- ♥ Heart button --}}
+                                <button
+                                    class="fav-heart-btn {{ $isRelFav ? 'active' : '' }}"
+                                    data-product="{{ $relatedProductValue->id }}"
+                                    data-auth="{{ Auth::check() ? '1' : '0' }}"
+                                    onclick="toggleFav(this)"
+                                    title="{{ $isRelFav ? 'Remove from favorites' : 'Add to favorites' }}">
+                                    <i class="{{ $isRelFav ? 'fa-solid' : 'fa-regular' }} fa-heart"></i>
+                                </button>
+
                                 <a href="/product/{{ $relatedProductValue->slug }}">
                                     <img src="/uploads/{{ $relatedProductValue->thumbnail }}"
                                          alt="{{ $relatedProductValue->name }}" loading="lazy">

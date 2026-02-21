@@ -14,49 +14,85 @@ class HomeController extends Controller
 
     public function Home()
     {
-        $newProduct = DB::table('product')->orderByDesc('id')->limit(4)->get();
-        $promotionProduct =  DB::table('product')->where('sale_price', '>', 0)->limit(4)->get();
-        $popularProduct = DB::table('product')->orderByDesc('viewer')->limit(4)->get();
+        $logo = DB::table('logo')->get();
 
-        return view('frontend.home', ['newProducts' => $newProduct, 'promotionPro' => $promotionProduct, 'popularProduct' => $popularProduct]);
+        $newProducts = DB::table('product')
+            ->orderBy('created_at', 'desc')
+            ->limit(8)
+            ->get();
+
+        $promotionPro = DB::table('product')
+            ->where('sale_price', '>', 0)
+            ->orderBy('created_at', 'desc')
+            ->limit(8)
+            ->get();
+
+        $popularProduct = DB::table('product')
+            ->orderBy('created_at', 'asc')
+            ->limit(8)
+            ->get();
+
+        $favIds = $this->getFavIds();
+        $this->attachFav($newProducts,    $favIds);
+        $this->attachFav($promotionPro,   $favIds);
+        $this->attachFav($popularProduct, $favIds);
+
+        return view('frontend.home', compact(
+            'logo',
+            'newProducts',
+            'promotionPro',
+            'popularProduct'
+        ));
     }
+
 
 
     public function Shop(Request $request)
-    {
-        $limitPage = 3;
-        $currentPage = $request->input('page', 1);
+{
+    $limitPage   = 6;
+    $currentPage = $request->input('page', 1);
+    $offset      = ($currentPage - 1) * $limitPage;
 
-        $offset = ($currentPage - 1) * $limitPage;
+    $productObj = DB::table('product');
 
-        $productObj = DB::table('product');
-
-        if ($request->category) {
-            $categorySlug = $request->category;
-            $categoryId = DB::table('category')->where('slug', $categorySlug)->get();
-            $product = $productObj->where('category', $categoryId[0]->id)->limit($limitPage)->offset($offset);
-            $productCount = DB::table('product')->where('category', $categoryId[0]->id)->count();
-        } elseif ($request->price) {
-            if ($request->price == 'max') {
-                $product = $productObj->orderByDesc('regular_price')->limit($limitPage)->offset($offset);
-            } else {
-                $product = $productObj->orderBy('regular_price', 'ASC')->limit($limitPage)->offset($offset);
-            }
-            $productCount = DB::table('product')->count();
-        } elseif ($request->promotion) {
-            $product = $productObj->where('sale_price', '>', 0)->limit($limitPage)->offset($offset);
-            $productCount = DB::table('product')->where('sale_price', '>', 0)->count();
+    if ($request->category) {
+        $categorySlug = $request->category;
+        $categoryId   = DB::table('category')->where('slug', $categorySlug)->first();
+        $productObj->where('category', $categoryId->id);
+        $productCount = DB::table('product')->where('category', $categoryId->id)->count();
+    } elseif ($request->price) {
+        if ($request->price == 'max') {
+            $productObj->orderByDesc('regular_price');
         } else {
-            $product = $productObj->limit($limitPage)->offset($offset);
-            $productCount = DB::table('product')->count();
+            $productObj->orderBy('regular_price', 'ASC');
         }
-        $product = $productObj->orderByDesc('id')->get();
-
-        $category = DB::table('category')->orderByDesc('id')->get();
-        $totalPage = ceil($productCount / $limitPage);
-
-        return view('frontend.shop', ['product' => $product, 'totalPage' => $totalPage, 'category' => $category]);
+        $productCount = DB::table('product')->count();
+    } elseif ($request->promotion) {
+        $productObj->where('sale_price', '>', 0);
+        $productCount = DB::table('product')->where('sale_price', '>', 0)->count();
+    } else {
+        $productCount = DB::table('product')->count();
     }
+
+    $product  = $productObj->orderByDesc('id')->limit($limitPage)->offset($offset)->get();
+    $category = DB::table('category')->orderByDesc('id')->get();
+    $totalPage = ceil($productCount / $limitPage);
+
+    $favIds = [];
+    if (Auth::check()) {
+        $favIds = DB::table('favorites')
+            ->where('user_id', Auth::user()->id)
+            ->pluck('product_id')
+            ->toArray();
+    }
+
+    return view('frontend.shop', [
+        'product'   => $product,
+        'totalPage' => $totalPage,
+        'category'  => $category,
+        'favIds'    => $favIds,
+    ]);
+}
 
     public function Product($slug)
     {
@@ -248,13 +284,11 @@ public function SearchAjax(Request $request)
         DB::table('product')->where('id', $cartItem->product_id)->decrement('quantity', $cartItem->quantity);
     }
 
-    // Update cart items status
     DB::table('cart_items')->where('cart_id', $cart->id)->update([
         'status' => 1,
         'updated_at' => date('Y-m-d h:i:s')
     ]);
 
-    // Reset the cart total amount
     DB::table('cart')->where('id', $cart->id)->update([
         'total_amount' => 0,
         'updated_at' => date('Y-m-d h:i:s')
@@ -313,7 +347,6 @@ public function CartItem()
         ->leftJoin('product','product.id','order_item.product_id')
         ->select('product.name','product.thumbnail','order_item.*')
         ->get();
-        // return $dbOrderItems;
         $dbOrder = DB::table('order')->where('id',$id)->get();
 
         return view('frontend.my-order-history',['orderItems'=>$dbOrderItems , 'order'=>$dbOrder]);        
@@ -505,6 +538,87 @@ public function UpdatePhoto(Request $request)
 
     return redirect('/profile')->with('error', 'No image file received.');
 }
+
+public function MyFavorites()
+    {
+        if (!Auth::check()) {
+            return redirect('/signin');
+        }
+
+        $logo = DB::table('logo')->get();
+
+        $favorites = DB::table('favorites')
+            ->join('product', 'favorites.product_id', '=', 'product.id')
+            ->where('favorites.user_id', Auth::user()->id)
+            ->select('product.*', 'favorites.created_at as fav_date')
+            ->orderBy('favorites.created_at', 'desc')
+            ->get();
+
+        return view('frontend.favorites', compact('logo', 'favorites'));
+    }
+
+    public function ToggleFavorite(Request $request)
+    {
+        if (!Auth::check()) {
+            return response()->json(['status' => 'unauthenticated'], 401);
+        }
+
+        $productId = $request->product_id;
+        $userId    = Auth::user()->id;
+
+        $exists = DB::table('favorites')
+            ->where('user_id', $userId)
+            ->where('product_id', $productId)
+            ->first();
+
+        if ($exists) {
+            DB::table('favorites')
+                ->where('user_id', $userId)
+                ->where('product_id', $productId)
+                ->delete();
+
+            return response()->json(['status' => 'removed']);
+        } else {
+            DB::table('favorites')->insert([
+                'user_id'    => $userId,
+                'product_id' => $productId,
+                'created_at' => now(),
+            ]);
+
+            return response()->json(['status' => 'added']);
+        }
+    }
+
+    public function RemoveFavorite($productId)
+    {
+        if (!Auth::check()) {
+            return redirect('/signin');
+        }
+
+        DB::table('favorites')
+            ->where('user_id', Auth::user()->id)
+            ->where('product_id', $productId)
+            ->delete();
+
+        return redirect('/my-favorites')->with('success', 'Removed from favorites.');
+    }
+
+    private function getFavIds(): array
+    {
+        if (!Auth::check()) return [];
+
+        return DB::table('favorites')
+            ->where('user_id', Auth::user()->id)
+            ->pluck('product_id')
+            ->toArray();
+    }
+
+    private function attachFav($products, array $favIds): void
+    {
+        foreach ($products as $p) {
+            $p->is_fav = in_array($p->id, $favIds);
+        }
+    }
 
     public function logout($id)
     {

@@ -45,6 +45,9 @@ Route::get('/profile',                 [HomeController::class, 'Profile']);
 Route::put('/profile/update',          [HomeController::class, 'UpdateProfile']);
 Route::put('/profile/change-password', [HomeController::class, 'ChangePassword']);
 Route::post('/profile/update-photo',   [HomeController::class, 'UpdatePhoto']);
+Route::post('/favorite/toggle',            [HomeController::class, 'ToggleFavorite']);
+Route::get('/my-favorites',                [HomeController::class, 'MyFavorites']);
+Route::get('/favorite/remove/{productId}', [HomeController::class, 'RemoveFavorite']);
 Route::get('/404',       [HomeController::class, 'notFound']);
 Route::get('/logout/{id}',[HomeController::class,'logout']);
 

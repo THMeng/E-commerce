@@ -149,6 +149,36 @@
         text-transform: uppercase;
     }
 
+    /* ── Heart / Favourite button ── */
+    .fav-heart-btn {
+        position: absolute;
+        top: 8px; right: 8px;
+        z-index: 2;
+        background: rgba(255,255,255,0.85);
+        border: none;
+        border-radius: 50%;
+        width: 32px;
+        height: 32px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: background 0.15s, transform 0.15s;
+        padding: 0;
+        line-height: 1;
+    }
+
+    .fav-heart-btn:hover { background: #fff; transform: scale(1.12); }
+
+    .fav-heart-btn i {
+        font-size: 0.95rem;
+        color: #bbb;
+        transition: color 0.15s;
+    }
+
+    .fav-heart-btn.active i,
+    .fav-heart-btn:hover i { color: #e74c3c; }
+
     figure .detail { padding: 0.5rem 0 0.25rem; }
 
     figure .detail .title {
@@ -291,12 +321,24 @@
                         <div class="row g-3">
 
                             @forelse ($product as $productVal)
+                                @php $isFav = in_array($productVal->id, $favIds ?? []); @endphp
                                 <div class="col-6 col-sm-6 col-md-4 col-lg-4">
                                     <figure>
                                         <div class="thumbnail">
                                             @if ($productVal->sale_price > 0)
                                                 <div class="status">Promo</div>
                                             @endif
+
+                                            {{-- ♥ Heart button --}}
+                                            <button
+                                                class="fav-heart-btn {{ $isFav ? 'active' : '' }}"
+                                                data-product="{{ $productVal->id }}"
+                                                data-auth="{{ Auth::check() ? '1' : '0' }}"
+                                                onclick="toggleFav(this)"
+                                                title="{{ $isFav ? 'Remove from favorites' : 'Add to favorites' }}">
+                                                <i class="{{ $isFav ? 'fa-solid' : 'fa-regular' }} fa-heart"></i>
+                                            </button>
+
                                             <a href="/product/{{ $productVal->slug }}">
                                                 <img src="/uploads/{{ $productVal->thumbnail }}"
                                                      alt="{{ $productVal->name }}" loading="lazy">

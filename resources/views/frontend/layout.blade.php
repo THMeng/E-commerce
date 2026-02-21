@@ -4,6 +4,7 @@
     <title>@yield('title')</title>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
 
     <link href="{{ url('css/frontend/theme.css') }}" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer" />
@@ -154,7 +155,6 @@
 
         .header-hamburger:hover { background: #f5f5f5; }
 
-        /* ── Breakpoints ── */
         @@media (min-width: 992px) {
             .header-inner { height: 70px; padding: 0 2rem; }
             .site-logo img { height: 40px; }
@@ -347,7 +347,7 @@
         .ls-item .ls-price.no-sale { color: #999; font-weight: 500; }
         .ls-empty { padding: 1.25rem; text-align: center; font-size: 0.84rem; color: #bbb; }
 
-        /* ════════ PRODUCT CARDS ════════ */
+        /* ════════ PRODUCT CARDS — original style ════════ */
         figure { margin: 0; }
 
         figure .thumbnail {
@@ -405,6 +405,101 @@
         .regular-price { color: #bbb; font-size: 0.8rem; text-decoration: line-through; }
         .sale-price    { color: #e74c3c; font-weight: 700; font-size: 0.92rem; }
         .price         { color: #222; font-weight: 700; font-size: 0.92rem; }
+
+        /* ════════ FAVORITE HEART BUTTON ════════ */
+        .fav-heart-btn {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            width: 30px;
+            height: 30px;
+            background: rgba(255,255,255,0.9);
+            border: none;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #ccc;
+            font-size: 0.85rem;
+            box-shadow: 0 1px 6px rgba(0,0,0,0.12);
+            cursor: pointer;
+            transition: color 0.2s, background 0.2s, transform 0.15s;
+            z-index: 2;
+            padding: 0;
+            outline: none;
+            line-height: 1;
+        }
+
+        .fav-heart-btn:hover {
+            color: #e74c3c;
+            background: #fff;
+            transform: scale(1.15);
+        }
+
+        .fav-heart-btn.active {
+            color: #e74c3c;
+            background: #fff;
+        }
+
+        @@keyframes favpulse {
+            0%   { transform: scale(1); }
+            40%  { transform: scale(1.35); }
+            70%  { transform: scale(0.9); }
+            100% { transform: scale(1); }
+        }
+
+        .fav-heart-btn.pulse { animation: favpulse 0.35s ease; }
+
+        /* Detail page larger version */
+        .fav-heart-btn.fav-detail {
+            position: static;
+            width: auto;
+            height: 40px;
+            border-radius: 6px;
+            border: 1.5px solid #e0e0e0;
+            background: #fff;
+            padding: 0 1rem;
+            gap: 6px;
+            font-size: 0.82rem;
+            font-weight: 700;
+            color: #aaa;
+            box-shadow: none;
+            display: inline-flex;
+            transform: none !important;
+        }
+
+        .fav-heart-btn.fav-detail:hover,
+        .fav-heart-btn.fav-detail.active {
+            border-color: #e74c3c;
+            color: #e74c3c;
+            background: #fff5f5;
+        }
+
+        .fav-label { font-size: 0.8rem; font-weight: 700; }
+
+        /* Toast */
+        #fav-toast {
+            position: fixed;
+            bottom: 70px;
+            left: 50%;
+            transform: translateX(-50%) translateY(16px);
+            background: #222;
+            color: #fff;
+            padding: 0.55rem 1.2rem;
+            border-radius: 20px;
+            font-size: 0.79rem;
+            font-weight: 600;
+            white-space: nowrap;
+            z-index: 99998;
+            opacity: 0;
+            transition: opacity 0.22s, transform 0.22s;
+            pointer-events: none;
+        }
+
+        #fav-toast.show {
+            opacity: 1;
+            transform: translateX(-50%) translateY(0);
+        }
 
         /* ════════ SECTION TITLE ════════ */
         .main-title {
@@ -474,11 +569,7 @@
             transition: background 0.15s, color 0.15s, border-color 0.15s;
         }
 
-        .footer-socials a:hover {
-            background: #e74c3c;
-            color: #fff;
-            border-color: #e74c3c;
-        }
+        .footer-socials a:hover { background: #e74c3c; color: #fff; border-color: #e74c3c; }
 
         .footer-col-title {
             font-size: 0.68rem;
@@ -511,7 +602,6 @@
             color: rgba(255,255,255,0.25);
         }
 
-        /* ════════ GLOBAL MOBILE ════════ */
         @@media (max-width: 575px) {
             .container { padding-left: 1rem; padding-right: 1rem; }
         }
@@ -534,147 +624,83 @@
             align-items: center;
             font-family: 'Segoe UI', sans-serif;
         }
-
         .abar-left {
-            display: flex;
-            align-items: center;
-            height: 100%;
-            flex: 1;
-            overflow-x: auto;
-            scrollbar-width: none;
-            min-width: 0;
+            display: flex; align-items: center;
+            height: 100%; flex: 1;
+            overflow-x: auto; scrollbar-width: none; min-width: 0;
         }
-
         .abar-left::-webkit-scrollbar { display: none; }
-
         .abar-brand {
-            display: flex;
-            align-items: center;
-            gap: 7px;
-            padding: 0 12px;
-            height: 100%;
+            display: flex; align-items: center; gap: 7px;
+            padding: 0 12px; height: 100%;
             border-right: 1px solid rgba(255,255,255,0.1);
-            flex-shrink: 0;
-            color: #e74c3c;
-            font-size: 0.68rem;
-            font-weight: 800;
-            text-transform: uppercase;
-            letter-spacing: 0.1em;
-            white-space: nowrap;
+            flex-shrink: 0; color: #e74c3c;
+            font-size: 0.68rem; font-weight: 800;
+            text-transform: uppercase; letter-spacing: 0.1em; white-space: nowrap;
         }
-
         @@keyframes abarpulse {
             0%,100% { opacity:1; transform:scale(1); }
             50%      { opacity:0.4; transform:scale(0.85); }
         }
-
         .abar-dot {
-            width: 7px; height: 7px;
-            background: #e74c3c;
-            border-radius: 50%;
-            flex-shrink: 0;
+            width: 7px; height: 7px; background: #e74c3c;
+            border-radius: 50%; flex-shrink: 0;
             animation: abarpulse 1.8s ease-in-out infinite;
         }
-
         .abar-link {
-            display: inline-flex;
-            align-items: center;
-            gap: 5px;
-            padding: 0 12px;
-            height: 100%;
+            display: inline-flex; align-items: center; gap: 5px;
+            padding: 0 12px; height: 100%;
             color: rgba(255,255,255,0.6);
-            font-size: 0.72rem;
-            font-weight: 600;
+            font-size: 0.72rem; font-weight: 600;
             text-decoration: none;
             border-right: 1px solid rgba(255,255,255,0.06);
-            white-space: nowrap;
-            transition: background 0.15s, color 0.15s;
-            flex-shrink: 0;
+            white-space: nowrap; transition: background 0.15s, color 0.15s; flex-shrink: 0;
         }
-
         .abar-link:hover { background: rgba(255,255,255,0.07); color: #fff; }
         .abar-link i { font-size: 0.88rem; }
-
         .abar-badge {
             background: #e74c3c; color: #fff;
             font-size: 0.58rem; font-weight: 800;
             padding: 1px 5px; border-radius: 8px; margin-left: 2px;
         }
-
-        /* Back to Admin — fixed on right, NEVER pushed out */
-        .abar-right {
-            flex-shrink: 0;
-            height: 100%;
-            display: flex;
-            align-items: stretch;
-        }
-
+        .abar-right { flex-shrink: 0; height: 100%; display: flex; align-items: stretch; }
         .abar-back {
-            display: inline-flex;
-            align-items: center;
-            gap: 7px;
-            padding: 0 18px;
-            height: 100%;
-            background: #e74c3c;
-            color: #fff !important;
-            font-size: 0.72rem;
-            font-weight: 800;
+            display: inline-flex; align-items: center; gap: 7px;
+            padding: 0 18px; height: 100%;
+            background: #e74c3c; color: #fff !important;
+            font-size: 0.72rem; font-weight: 800;
             text-decoration: none !important;
-            text-transform: uppercase;
-            letter-spacing: 0.06em;
-            white-space: nowrap;
-            transition: background 0.15s;
+            text-transform: uppercase; letter-spacing: 0.06em;
+            white-space: nowrap; transition: background 0.15s;
         }
-
         .abar-back:hover { background: #c0392b; }
         .abar-back i { font-size: 0.95rem; }
-
         body { padding-bottom: 48px !important; }
-
         @@media (max-width: 640px) {
-            .abar-brand span { display: none; }
-            .abar-link span  { display: none; }
+            .abar-brand span, .abar-link span, .abar-back span { display: none; }
             .abar-link { padding: 0 10px; }
-            .abar-back span  { display: none; }
             .abar-back { padding: 0 16px; }
         }
-
         @@media (max-width: 360px) {
             .abar-link { padding: 0 8px; }
             .abar-back { padding: 0 12px; }
         }
     </style>
-
     <div id="admin-bar">
         <div class="abar-left">
-            <div class="abar-brand">
-                <div class="abar-dot"></div>
-                <span>Admin Mode</span>
-            </div>
-            <a href="/admin" class="abar-link">
-                <i class="fa-solid fa-gauge-high"></i><span>Dashboard</span>
-            </a>
-            <a href="/admin/add-product" class="abar-link">
-                <i class="fa-solid fa-plus"></i><span>Add Product</span>
-            </a>
-            <a href="/admin/list-product/" class="abar-link">
-                <i class="fa-solid fa-boxes-stacked"></i><span>Products</span>
-            </a>
+            <div class="abar-brand"><div class="abar-dot"></div><span>Admin Mode</span></div>
+            <a href="/admin" class="abar-link"><i class="fa-solid fa-gauge-high"></i><span>Dashboard</span></a>
+            <a href="/admin/add-product" class="abar-link"><i class="fa-solid fa-plus"></i><span>Add Product</span></a>
+            <a href="/admin/list-product/" class="abar-link"><i class="fa-solid fa-boxes-stacked"></i><span>Products</span></a>
             <a href="/admin/view-order" class="abar-link">
                 <i class="fa-solid fa-receipt"></i><span>Orders</span>
-                @if ($pendingCount > 0)
-                    <span class="abar-badge">{{ $pendingCount }}</span>
-                @endif
+                @if ($pendingCount > 0)<span class="abar-badge">{{ $pendingCount }}</span>@endif
             </a>
-            <a href="/admin/list-category" class="abar-link">
-                <i class="fa-solid fa-layer-group"></i><span>Categories</span>
-            </a>
+            <a href="/admin/list-category" class="abar-link"><i class="fa-solid fa-layer-group"></i><span>Categories</span></a>
         </div>
-
         <div class="abar-right">
             <a href="/admin" class="abar-back">
-                <i class="fa-solid fa-arrow-right-to-bracket"></i>
-                <span>Back to Admin</span>
+                <i class="fa-solid fa-arrow-right-to-bracket"></i><span>Back to Admin</span>
             </a>
         </div>
     </div>
@@ -683,47 +709,36 @@
     {{-- ══ HEADER ══ --}}
     <header class="site-header">
         <div class="header-inner">
-
             <button class="header-hamburger" type="button"
-                    data-bs-toggle="offcanvas" data-bs-target="#sidebarMenu"
-                    aria-label="Open menu">
+                    data-bs-toggle="offcanvas" data-bs-target="#sidebarMenu" aria-label="Open menu">
                 <i class="fa-solid fa-bars"></i>
             </button>
-
             <a class="site-logo" href="/">
                 <img src="../uploads/{{ $logo[0]->thumbnail }}" alt="Logo">
             </a>
-
             <nav class="header-nav">
                 <a href="/">Home</a>
                 <a href="/shop">Shop</a>
                 <a href="/news">News</a>
             </nav>
-
             <div class="header-spacer"></div>
-
             <div class="header-search">
                 <div class="live-search-wrap" id="desktopSearch">
                     <div class="live-search-input-wrap">
-                        <input type="search" id="desktopSearchInput"
-                               class="live-search-input"
-                               placeholder="Search products…"
-                               autocomplete="off">
+                        <input type="search" id="desktopSearchInput" class="live-search-input" placeholder="Search products…" autocomplete="off">
                         <i class="fa-solid fa-magnifying-glass live-search-icon"></i>
                         <div class="live-search-spinner d-none" id="desktopSpinner"></div>
                     </div>
                     <div class="live-search-dropdown" id="desktopDropdown"></div>
                 </div>
             </div>
-
             <div class="header-icons">
                 @if (Auth::check())
                     @php
                         $cartCount = DB::table('cart')
                             ->join('cart_items', 'cart.id', '=', 'cart_items.cart_id')
                             ->where('cart.user_id', Auth::user()->id)
-                            ->where('cart_items.status', 0)
-                            ->count();
+                            ->where('cart_items.status', 0)->count();
                     @endphp
                     <a href="/profile" class="hicon" title="My Profile">
                         @if (Auth::user()->profile && Auth::user()->profile != '')
@@ -731,6 +746,9 @@
                         @else
                             <i class="fa-solid fa-circle-user"></i>
                         @endif
+                    </a>
+                    <a href="/my-favorites" class="hicon" title="My Favorites">
+                        <i class="fa-regular fa-heart"></i>
                     </a>
                     <a href="/my-order" class="hicon" title="My Orders">
                         <i class="fa-solid fa-bag-shopping"></i>
@@ -741,8 +759,7 @@
                             <span class="cart-badge">{{ $cartCount > 99 ? '99+' : $cartCount }}</span>
                         @endif
                     </a>
-                    <a href="/logout/{{ Auth::user()->id }}"
-                       class="hicon d-none d-lg-inline-flex" title="Log Out">
+                    <a href="/logout/{{ Auth::user()->id }}" class="hicon d-none d-lg-inline-flex" title="Log Out">
                         <i class="fa-solid fa-right-from-bracket"></i>
                     </a>
                 @else
@@ -751,50 +768,40 @@
                     </a>
                 @endif
             </div>
-
         </div>
     </header>
 
     {{-- ══ SIDEBAR ══ --}}
     <div class="offcanvas offcanvas-start" tabindex="-1" id="sidebarMenu">
         <div class="offcanvas-header">
-            <a href="/">
-                <img src="../uploads/{{ $logo[0]->thumbnail }}"
-                     alt="Logo" style="height:30px;width:auto;">
-            </a>
-            <button type="button" class="btn-close ms-auto"
-                    data-bs-dismiss="offcanvas" aria-label="Close"></button>
+            <a href="/"><img src="../uploads/{{ $logo[0]->thumbnail }}" alt="Logo" style="height:30px;width:auto;"></a>
+            <button type="button" class="btn-close ms-auto" data-bs-dismiss="offcanvas"></button>
         </div>
-
         <div class="offcanvas-body">
-
             <div class="sb-search">
                 <div class="live-search-wrap" id="sidebarSearch">
                     <div class="live-search-input-wrap">
-                        <input type="search" id="sidebarSearchInput"
-                               class="live-search-input"
-                               placeholder="Search products…"
-                               autocomplete="off">
+                        <input type="search" id="sidebarSearchInput" class="live-search-input" placeholder="Search products…" autocomplete="off">
                         <i class="fa-solid fa-magnifying-glass live-search-icon"></i>
                     </div>
                     <div class="live-search-dropdown" id="sidebarDropdown"></div>
                 </div>
             </div>
-
             <div class="sb-nav">
                 <a href="/"><i class="fa-solid fa-house"></i> Home</a>
                 <a href="/shop"><i class="fa-solid fa-store"></i> Shop</a>
                 <a href="/news"><i class="fa-solid fa-newspaper"></i> News</a>
+                @if (Auth::check())
+                    <a href="/my-favorites"><i class="fa-regular fa-heart"></i> My Favorites</a>
+                @endif
             </div>
-
             <div class="sb-auth">
                 @if (Auth::check())
                     @php
                         $sidebarCartCount = DB::table('cart')
                             ->join('cart_items', 'cart.id', '=', 'cart_items.cart_id')
                             ->where('cart.user_id', Auth::user()->id)
-                            ->where('cart_items.status', 0)
-                            ->count();
+                            ->where('cart_items.status', 0)->count();
                     @endphp
                     <div class="sb-auth-title">My Account</div>
                     <a href="/profile"><i class="fa-solid fa-circle-user"></i> My Profile</a>
@@ -805,16 +812,13 @@
                             <span class="sb-cart-count">{{ $sidebarCartCount }}</span>
                         @endif
                     </a>
-                    <a href="/logout/{{ Auth::user()->id }}">
-                        <i class="fa-solid fa-right-from-bracket"></i> Log Out
-                    </a>
+                    <a href="/logout/{{ Auth::user()->id }}"><i class="fa-solid fa-right-from-bracket"></i> Log Out</a>
                 @else
                     <div class="sb-auth-title">Account</div>
                     <a href="/signin"><i class="fa-solid fa-right-to-bracket"></i> Log In</a>
                     <a href="/signup"><i class="fa-solid fa-user-plus"></i> Register</a>
                 @endif
             </div>
-
         </div>
     </div>
 
@@ -823,7 +827,6 @@
     {{-- ══ FOOTER ══ --}}
     <footer class="site-footer">
         <div class="footer-inner">
-
             <div class="footer-brand">
                 <img src="/uploads/{{ $logo[0]->thumbnail }}" alt="Logo">
                 <p>Your favourite fashion destination.<br>Quality styles delivered to your door.</p>
@@ -833,7 +836,6 @@
                     <a href="#"><i class="fa-brands fa-tiktok"></i></a>
                 </div>
             </div>
-
             <div class="footer-col">
                 <div class="footer-col-title">Shop</div>
                 <ul>
@@ -843,7 +845,6 @@
                     <li><a href="/shop?price=min">Budget Picks</a></li>
                 </ul>
             </div>
-
             <div class="footer-col">
                 <div class="footer-col-title">Account</div>
                 <ul>
@@ -858,7 +859,6 @@
                     @endif
                 </ul>
             </div>
-
             <div class="footer-col">
                 <div class="footer-col-title">Navigate</div>
                 <ul>
@@ -867,12 +867,8 @@
                     <li><a href="/news">News</a></li>
                 </ul>
             </div>
-
         </div>
-
-        <div class="footer-bottom">
-            &copy; {{ date('Y') }} All Rights Reserved.
-        </div>
+        <div class="footer-bottom">&copy; {{ date('Y') }} All Rights Reserved.</div>
     </footer>
 
 </body>
@@ -884,9 +880,7 @@
         const dropdown = document.getElementById(dropdownId);
         const spinner  = spinnerId ? document.getElementById(spinnerId) : null;
         if (!input || !dropdown) return;
-
         let timer;
-
         input.addEventListener('input', function () {
             const kw = this.value.trim();
             clearTimeout(timer);
@@ -894,7 +888,6 @@
             dropdown.innerHTML = '';
             if (kw.length < 2) return;
             if (spinner) spinner.classList.remove('d-none');
-
             timer = setTimeout(function () {
                 fetch('/search-ajax?s=' + encodeURIComponent(kw))
                     .then(r => r.json())
@@ -917,15 +910,57 @@
                     .catch(() => { if (spinner) spinner.classList.add('d-none'); });
             }, 300);
         });
-
         document.addEventListener('click', function (e) {
             const wrap = input.closest('.live-search-wrap');
             if (wrap && !wrap.contains(e.target)) dropdown.classList.remove('show');
         });
     }
-
     initLiveSearch('desktopSearchInput', 'desktopDropdown', 'desktopSpinner');
     initLiveSearch('sidebarSearchInput', 'sidebarDropdown', null);
 })();
+</script>
+
+<script>
+function toggleFav(btn) {
+    const isAuth = btn.dataset.auth === '1';
+    if (!isAuth) { window.location.href = '/signin'; return; }
+
+    const productId = btn.dataset.product;
+    const icon      = btn.querySelector('i');
+    const label     = btn.querySelector('.fav-label');
+
+    btn.classList.toggle('active');
+    btn.classList.add('pulse');
+    setTimeout(() => btn.classList.remove('pulse'), 350);
+
+    if (icon) icon.className = btn.classList.contains('active') ? 'fa-solid fa-heart' : 'fa-regular fa-heart';
+    if (label) label.textContent = btn.classList.contains('active') ? 'Saved' : 'Save';
+
+    showFavToast(btn.classList.contains('active') ? '♥ Added to favorites' : 'Removed from favorites');
+
+    fetch('/favorite/toggle', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+        },
+        body: JSON.stringify({ product_id: productId })
+    })
+    .then(r => r.json())
+    .then(data => { if (data.status === 'unauthenticated') window.location.href = '/signin'; })
+    .catch(() => {
+        btn.classList.toggle('active');
+        if (icon) icon.className = btn.classList.contains('active') ? 'fa-solid fa-heart' : 'fa-regular fa-heart';
+    });
+}
+
+function showFavToast(msg) {
+    let t = document.getElementById('fav-toast');
+    if (!t) { t = document.createElement('div'); t.id = 'fav-toast'; document.body.appendChild(t); }
+    t.textContent = msg;
+    t.classList.add('show');
+    clearTimeout(t._tmr);
+    t._tmr = setTimeout(() => t.classList.remove('show'), 2200);
+}
 </script>
 </html>
