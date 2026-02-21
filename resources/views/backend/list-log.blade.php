@@ -180,7 +180,7 @@
             <ul>
                 @if ($currentPage > 1)
                     <li>
-                        <a href="/admin/list-log?page={{ $currentPage - 1 }}">
+                        <a href="/admin/log-activity?page={{ $currentPage - 1 }}">
                             <i class="fa fa-angle-left"></i> Prev
                         </a>
                     </li>
@@ -188,7 +188,7 @@
 
                 @for ($i = 0; $i < $totalPage; $i++)
                     <li>
-                        <a href="/admin/list-log?page={{ $i + 1 }}"
+                        <a href="/admin/log-activity?page={{ $i + 1 }}"
                            class="{{ $currentPage == $i + 1 ? 'active' : '' }}">
                             {{ $i + 1 }}
                         </a>
@@ -197,7 +197,7 @@
 
                 @if ($currentPage < $totalPage)
                     <li>
-                        <a href="/admin/list-log?page={{ $currentPage + 1 }}">
+                        <a href="/admin/log-activity?page={{ $currentPage + 1 }}">
                             Next <i class="fa fa-angle-right"></i>
                         </a>
                     </li>
